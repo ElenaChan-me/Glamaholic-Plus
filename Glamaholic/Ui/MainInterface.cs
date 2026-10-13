@@ -3,7 +3,6 @@ using Dalamud.Game;
 using Dalamud.Interface;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
-using Glamaholic.Interop;
 using Lumina.Excel.Sheets;
 using Lumina.Extensions;
 using Newtonsoft.Json;
@@ -14,7 +13,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Interface.Utility.Raii;
 using Lumina.Excel;
 
@@ -58,15 +56,10 @@ namespace Glamaholic.Ui {
         private Guid? _editingPlateId = null;
         private string _itemFilter = string.Empty;
         private string _dyeFilter = string.Empty;
-        private volatile bool _ecImporting;
         private readonly Dictionary<string, Stopwatch> _timedMessages = new();
         private string _tagInput = string.Empty;
         private int _editingItemDyeCount = 0;
         private DateTime _dyesCopiedTime = DateTime.MinValue;
-        private bool _massImport = false;
-        private string _massImportLastURL = string.Empty;
-        private string _massImportMessage = string.Empty;
-        private int _massImportTarget = 0;
         private string _newFolderNameInput = string.Empty;
 
         private Guid? _contextMenuNodeId = null;
@@ -78,11 +71,6 @@ namespace Glamaholic.Ui {
 
         private Guid? _dragGuid = null;
         private Guid? _newPlateTargetFolder = null;
-
-        // Changelog state
-        private bool _showChangelog = false;
-        private List<Changelog.ChangelogEntry>? _changelogEntries = null;
-        private bool _changelogChecked = false;
 
         internal MainInterface(PluginUi ui) {
             this.Ui = ui;
@@ -99,20 +87,8 @@ namespace Glamaholic.Ui {
         internal void Draw() {
             this.HandleTimers();
 
-            if (this._massImport)
-                this.DrawMassImportWindow();
-
-            if (this._showChangelog)
-                this.DrawChangelog();
-
             if (!this._visible) {
                 return;
-            }
-
-            // Check for new changelog entries on first open
-            if (!this._changelogChecked) {
-                this._changelogChecked = true;
-                this.CheckForNewChangelog();
             }
 
             ImGui.SetNextWindowSize(new Vector2(415, 650), ImGuiCond.FirstUseEver);
@@ -125,14 +101,6 @@ namespace Glamaholic.Ui {
             this.DrawInner();
 
             ImGui.End();
-        }
-
-        private static bool IsValidEorzeaCollectionUrl(string urlString) {
-            if (!Uri.TryCreate(urlString, UriKind.Absolute, out var url)) {
-                return false;
-            }
-
-            return url.Host == "ffxiv.eorzeacollection.com" && url.AbsolutePath.StartsWith("/glamour/");
         }
 
         private void DrawMenuBar() {
@@ -180,47 +148,11 @@ namespace Glamaholic.Ui {
                 ImGui.EndMenu();
             }
 
-            if (ImGui.BeginMenu("Eorzea Collection")) {
-                var validUrl = IsValidEorzeaCollectionUrl(Util.GetClipboardText());
-                if (ImGui.BeginMenu("Import from URL", validUrl && !this._ecImporting)) {
-                    if (ImGui.BeginMenu("New Plate")) {
-                        if (ImGui.MenuItem("To Root"))
-                            this.ImportEorzeaCollection(Util.GetClipboardText(), ECImportTarget.NewPlate);
-
-                        var folders = TreeUtils.GetAllFolders(this.Ui.Plugin.Config.Plates);
-                        foreach (var (folderId, path) in folders) {
-                            if (ImGui.MenuItem($"To {path}"))
-                                this.ImportEorzeaCollection(Util.GetClipboardText(), ECImportTarget.NewPlate, folderId);
-                        }
-
-                        ImGui.EndMenu();
-                    }
-
-                    if (ImGui.MenuItem("Try On"))
-                        this.ImportEorzeaCollection(Util.GetClipboardText(), ECImportTarget.TryOn);
-
-                    if (Interop.Glamourer.IsAvailable() && ImGui.MenuItem("Try On (Glamourer)"))
-                        this.ImportEorzeaCollection(Util.GetClipboardText(), ECImportTarget.TryOnGlamourer);
-
-                    ImGui.EndMenu();
-                }
-
-                if (ImGui.MenuItem("Mass Import")) {
-                    _massImport = true;
-                    _massImportLastURL = Util.GetClipboardText();
-                    _massImportMessage = "Waiting for URL to be copied...";
-                }
-
-                ImGui.EndMenu();
-            }
-
             var anyChanged = false;
             if (ImGui.BeginMenu("Settings")) {
                 anyChanged |= ImGui.MenuItem("Show plate editor menu", "", ref this.Ui.Plugin.Config.ShowEditorMenu);
                 anyChanged |= ImGui.MenuItem("Show examine window menu", "", ref this.Ui.Plugin.Config.ShowExamineMenu);
                 anyChanged |= ImGui.MenuItem("Show try on menu", "", ref this.Ui.Plugin.Config.ShowTryOnMenu);
-                ImGui.Separator();
-                anyChanged |= ImGui.MenuItem("Show Ko-fi button", "", ref this.Ui.Plugin.Config.ShowKofiButton);
                 ImGui.Separator();
                 anyChanged |= ImGui.MenuItem("Troubleshooting mode", "", ref this.Ui.Plugin.Config.TroubleshootingMode);
 
@@ -240,35 +172,7 @@ namespace Glamaholic.Ui {
                     ImGui.EndMenu();
                 }
 
-                ImGui.Separator();
-
-                if (ImGui.MenuItem("View Changelog")) {
-                    this._changelogEntries = Changelog.Entries
-                        .OrderByDescending(e => e.Version)
-                        .ToList();
-                    this._showChangelog = true;
-                }
-
                 ImGui.EndMenu();
-            }
-
-            if (this.Ui.Plugin.Config.ShowKofiButton) {
-                const string kofiText = "Support Anna on Ko-fi";
-                var kofiTextSize = ImGui.CalcTextSize(kofiText);
-                ImGui.GetWindowDrawList().AddRectFilled(
-                    ImGui.GetCursorScreenPos(),
-                    ImGui.GetCursorScreenPos() + kofiTextSize + ImGui.GetStyle().ItemInnerSpacing * 2,
-                    0xFF5B5EFF
-                );
-                ImGui.PushStyleColor(ImGuiCol.Text, 0xFFFFFFFF);
-                ImGui.PushStyleColor(ImGuiCol.HeaderHovered, 0x00000000);
-                if (ImGui.MenuItem(kofiText)) {
-                    Process.Start(new ProcessStartInfo("https://ko-fi.com/lojewalo") {
-                        UseShellExecute = true,
-                    });
-                }
-
-                ImGui.PopStyleColor(2);
             }
 
             if (anyChanged) {
@@ -276,53 +180,6 @@ namespace Glamaholic.Ui {
             }
 
             ImGui.EndMenuBar();
-        }
-
-        private enum ECImportTarget {
-            NewPlate,
-            TryOn,
-            TryOnGlamourer,
-        }
-
-        private void ImportEorzeaCollection(string url, ECImportTarget target, Guid? targetFolderId = null) {
-            if (!IsValidEorzeaCollectionUrl(url) || Service.ObjectTable.LocalPlayer == null) {
-                return;
-            }
-
-            this._ecImporting = true;
-
-            int playerIndex = Service.ObjectTable.LocalPlayer.ObjectIndex;
-
-            Task.Run(async () => {
-                var import = await EorzeaCollection.ImportFromURL(url);
-
-                this._ecImporting = false;
-
-                if (import == null) {
-                    if (this._massImport)
-                        this._massImportMessage = $"Import failed.. copy a new link to try again";
-
-                    return;
-                }
-
-                if (this._massImport)
-                    this._massImportMessage = $"Imported {import.Name}";
-
-                switch (target) {
-                    case ECImportTarget.NewPlate:
-                        import.Tags.Add("Eorzea Collection");
-                        var id = this.Ui.Plugin.Config.AddPlate(import, targetFolderId);
-                        this.Ui.Plugin.SaveConfig();
-                        this.SwitchPlate(id, true);
-                        break;
-                    case ECImportTarget.TryOn:
-                        this.Ui.TryOnHelper.TryOnPlate(import);
-                        break;
-                    case ECImportTarget.TryOnGlamourer:
-                        Interop.Glamourer.TryOn(playerIndex, import);
-                        break;
-                }
-            });
         }
 
         private void DrawPlateList() {
@@ -1306,20 +1163,6 @@ namespace Glamaholic.Ui {
             if (fillSlots)
                 this.FillEmptySlots(plate);
 
-            if (Interop.Glamourer.IsAvailable()) {
-                ImGui.NewLine();
-                ImGui.TextUnformatted("Glamourer");
-                SeparatorHack();
-
-                if (ImGui.Button("Try On") && Service.ObjectTable.LocalPlayer != null)
-                    Interop.Glamourer.TryOn(Service.ObjectTable.LocalPlayer!.ObjectIndex, plate);
-
-                ImGui.SameLine();
-
-                if (ImGui.Button("Revert") && Service.ObjectTable.LocalPlayer != null)
-                    Interop.Glamourer.RevertState(Service.ObjectTable.LocalPlayer!.ObjectIndex);
-            }
-
             ImGui.NewLine();
             ImGui.TextUnformatted("Settings");
             SeparatorHack();
@@ -1442,70 +1285,6 @@ namespace Glamaholic.Ui {
             ImGui.SameLine();
 
             this.DrawPlateDetail();
-        }
-
-        private void DrawMassImportWindow() {
-            var displaySize = ImGui.GetIO().DisplaySize;
-            var windowSize = new Vector2(500, 300);
-            var windowPos = (displaySize - windowSize) / 2;
-
-            ImGui.SetNextWindowPos(windowPos, ImGuiCond.Appearing);
-            ImGui.SetNextWindowSize(windowSize, ImGuiCond.Appearing);
-
-            if (!ImGui.Begin("Mass Import", ref this._massImport)) {
-                ImGui.End();
-                return;
-            }
-
-            ImGui.TextUnformatted("Eorzea Collection Mass Import");
-            ImGui.Separator();
-
-            {
-                ImGui.TextUnformatted("Target:");
-                ImGui.RadioButton("New Plate", ref this._massImportTarget, 0); ImGui.SameLine();
-                ImGui.RadioButton("Try On", ref this._massImportTarget, 1);
-
-                if (Interop.Glamourer.IsAvailable()) {
-                    ImGui.SameLine();
-                    ImGui.RadioButton("Try On (Glamourer)", ref this._massImportTarget, 2);
-
-                    if (this._massImportTarget == 2) {
-                        ImGui.Separator();
-
-                        if (ImGui.Button("Revert Glamourer")) {
-                            if (Service.ObjectTable.LocalPlayer != null)
-                                Interop.Glamourer.RevertState(Service.ObjectTable.LocalPlayer.ObjectIndex);
-                        }
-                    }
-                }
-            }
-
-            var target = (ECImportTarget) this._massImportTarget;
-
-            if (!this._ecImporting) {
-                var clipboard = Util.GetClipboardText().Trim();
-                if (clipboard != _massImportLastURL && IsValidEorzeaCollectionUrl(clipboard)) {
-                    _massImportLastURL = clipboard;
-                    _massImportMessage = "Importing...";
-                    ImportEorzeaCollection(clipboard, target);
-                }
-            }
-
-            ImGui.NewLine();
-            ImGui.TextUnformatted("Copy an Eorzea Collection URL to import it.");
-
-            ImGui.NewLine();
-            if (this._ecImporting)
-                ImGui.TextUnformatted("Importing...");
-            else
-                ImGui.TextUnformatted(_massImportMessage);
-
-            ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetFrameHeightWithSpacing() - ImGui.GetStyle().ItemSpacing.Y);
-            if (ImGui.Button("Close")) {
-                this._massImport = false;
-            }
-
-            ImGui.End();
         }
 
         private void HandleTimers() {
@@ -1652,84 +1431,6 @@ namespace Glamaholic.Ui {
                     return true;
             }
             return false;
-        }
-
-        private void CheckForNewChangelog() {
-            Version? lastSeen = null;
-            if (!string.IsNullOrEmpty(this.Ui.Plugin.Config.LastSeenChangelogVersion)) {
-                Version.TryParse(this.Ui.Plugin.Config.LastSeenChangelogVersion, out lastSeen);
-            }
-
-            this._changelogEntries = Changelog.GetEntriesSince(lastSeen);
-            if (this._changelogEntries.Count > 0) {
-                this._showChangelog = true;
-            }
-        }
-
-        private void DrawChangelog() {
-            var displaySize = ImGui.GetIO().DisplaySize;
-            var windowSize = new Vector2(450, 400);
-            var windowPos = (displaySize - windowSize) / 2;
-
-            ImGui.SetNextWindowPos(windowPos, ImGuiCond.Appearing);
-            ImGui.SetNextWindowSize(windowSize, ImGuiCond.Appearing);
-
-            if (!ImGui.Begin("What's New in Glamaholic", ref this._showChangelog, ImGuiWindowFlags.NoCollapse)) {
-                ImGui.End();
-                return;
-            }
-
-            if (this._changelogEntries == null || this._changelogEntries.Count == 0) {
-                ImGui.TextUnformatted("No new changes.");
-            } else {
-                ImGui.TextUnformatted("Recent changes since you last opened Glamaholic");
-                ImGui.Separator();
-                ImGui.NewLine();
-
-                float footerHeight = ImGui.GetFrameHeightWithSpacing() + ImGui.GetStyle().ItemSpacing.Y * 2;
-                if (ImGui.BeginChild("changelog-content", new Vector2(0, -footerHeight), false)) {
-                    foreach (var entry in this._changelogEntries) {
-                        ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudOrange);
-                        ImGui.TextUnformatted($"Version {entry.Version}");
-                        ImGui.PopStyleColor();
-
-                        foreach (var change in entry.Changes) {
-                            int indent = change.TakeWhile(c => c == '-').Count();
-                            string formatted = change.Substring(indent);
-                            for (int i = 0; i < indent; i++)
-                                ImGui.Indent();
-                            
-                            ImGui.Bullet();
-                            ImGui.SameLine();
-                            Util.TextUnformattedWrapped(formatted);
-                            
-                            for (int i = 0; i < indent; i++)
-                                ImGui.Unindent();
-                        }
-
-                        ImGui.NewLine();
-                    }
-
-                    ImGui.EndChild();
-                }
-            }
-
-            ImGui.Separator();
-            if (ImGui.Button("Close")) {
-                this.CloseChangelog();
-            }
-
-            ImGui.End();
-        }
-
-        private void CloseChangelog() {
-            this._showChangelog = false;
-
-            var latestVersion = Changelog.GetLatestVersion();
-            if (latestVersion != null) {
-                this.Ui.Plugin.Config.LastSeenChangelogVersion = latestVersion.ToString();
-                this.Ui.Plugin.SaveConfig();
-            }
         }
     }
 }

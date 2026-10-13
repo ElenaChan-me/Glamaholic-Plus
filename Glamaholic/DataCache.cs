@@ -18,13 +18,6 @@ namespace Glamaholic {
                        row.EquipSlotCategory.Value!.SoulCrystal == 0)
                 .ToImmutableList());
 
-        public static Lazy<ImmutableDictionary<string, byte>> StainsByName { get; } =
-            new (() =>
-                Service.DataManager.GetExcelSheet<Stain>(ClientLanguage.English)!
-                    .Where(static row => row.RowId != 0 && !row.Name.IsEmpty)
-                    .ToImmutableDictionary(static row =>
-                        row.Name.ExtractText().Trim().ToLower(), static row => (byte) row.RowId));
-
         public static Lazy<ImmutableDictionary<byte, CachedStain>> Stains { get; } =
             new(() =>
                 Service.DataManager.GetExcelSheet<Stain>(ClientLanguage.English)!

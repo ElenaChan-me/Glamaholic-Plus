@@ -2,7 +2,6 @@ using Dalamud.Game.Chat;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -46,8 +45,6 @@ namespace Glamaholic {
 
         private SavedPlate _retryLoadPlate = null;
         private int _retryLoadPlateCount = 0;
-        
-        private Hook<AgentMiragePrismMiragePlate.Delegates.SetSelectedItemStains> _setSelectedItemStainsHook;
 
         internal GameFunctions(Plugin plugin) {
             this.Plugin = plugin;
@@ -55,33 +52,13 @@ namespace Glamaholic {
 
             Service.ChatGui.ChatMessage += this.OnChat;
             Service.Framework.Update += OnFrameworkUpdate;
-
-            _setSelectedItemStainsHook = Service.GameInteropProvider
-                .HookFromAddress<AgentMiragePrismMiragePlate.Delegates.SetSelectedItemStains>(
-                    AgentMiragePrismMiragePlate.MemberFunctionPointers.SetSelectedItemStains,
-                    SetSelectedItemStainsHook);
-            //_setSelectedItemStainsHook.Enable();
         }
 
         public void Dispose() {
             Service.ChatGui.ChatMessage -= this.OnChat;
             Service.Framework.Update -= OnFrameworkUpdate;
-            _setSelectedItemStainsHook.Disable();
-            _setSelectedItemStainsHook.Dispose();
         }
 
-        private unsafe void SetSelectedItemStainsHook(
-            AgentMiragePrismMiragePlate* self,
-            InventoryItem* item0,
-            byte pendingStain0Id,
-            uint pendingStain0ItemId,
-            InventoryItem* item1,
-            byte pendingStain1Id,
-            uint pendingStain1ItemId) {
-            Service.Log.Debug($"SetSelectedItemStains({(nint)item0}, {pendingStain0Id}, {pendingStain0ItemId}, {(nint)item1}, {pendingStain1Id}, {pendingStain1ItemId})");
-            _setSelectedItemStainsHook.Original(self, item0, pendingStain0Id, pendingStain0ItemId, item1, pendingStain1Id, pendingStain1ItemId);
-        }
-        
         private void OnChat(IHandleableChatMessage msg) {
             if (this._filterIds.Count == 0 || msg.LogKind != XivChatType.SystemMessage) {
                 return;

@@ -49,27 +49,6 @@ namespace Glamaholic.Ui.Helpers {
             if (HelperUtil.DrawCreatePlateMenu(this.Ui, GetTryOnItems, ref this._nameInput)) {
                 this._nameInput = PlateName;
             }
-
-            if (Interop.Glamourer.IsAvailable()) {
-                if (ImGui.Selectable("Try on Glamourer")) {
-                    this.TryOnGlamourer(false);
-                }
-
-                if (ImGui.Selectable("Try on Glamourer - New Emperor")) {
-                    this.TryOnGlamourer(true);
-                }
-            }
-        }
-
-        private void TryOnGlamourer(bool withEmperor) {
-            if (Service.ObjectTable.LocalPlayer == null) return;
-            var plate = new SavedPlate("Glamourer") {
-                Items = GetTryOnItems(),
-                FillWithNewEmperor = withEmperor
-            };
-
-            Configuration.SanitisePlate(plate);
-            Interop.Glamourer.TryOn(Service.ObjectTable.LocalPlayer.ObjectIndex, plate);
         }
 
         private static unsafe Dictionary<PlateSlot, SavedGlamourItem> GetTryOnItems() {
