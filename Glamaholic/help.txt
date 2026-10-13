@@ -1,53 +1,52 @@
-# How to use Glamaholic
+# Glamaholic JP の使い方
 
-Thank you for installing Glamaholic! This plugin can act as your home for
-glamours, since you can store as many as you would like in it. To get started,
-try reading the section called "Adding glamour plates". Keep in mind that you'll
-need to be editing your plates at the Glamour Dresser to be able to copy those
-plates into the plugin or apply new plates.
-
----
-
-# Adding glamour plates
-
-- From the main Glamaholic window, click "Plates" and then "New" to create an
-empty glamour plate to edit from scratch.
-
-- From the main Glamaholic window, click "Plates", hover over "Import", paste
-a shared plate, then press Enter to import a shared plate.
-
-- Click on the Glamaholic menu at the top left of the Glamour Plate Creation
-window, then hover over "Create glamour plate" to import plates from the game.
-
-- Open the Examine window a character, click the "Glamaholic" menu, then click
-"Create glamour plate" to create a glamour plate from someone else's outfit.
+このプラグインには、ミラージュプレートを好きなだけ保存できます。まずは
+「プレートの追加」を読んでください。ゲームからプレートを取り込んだり、
+保存したプレートを適用したりするには、ミラージュドレッサーでプレートを
+編集している状態にしておく必要があります。
 
 ---
 
-# Finding items that share a model
+# プレートの追加
 
-You can search for items that share the same model as another item by either
-middle-clicking (click with mouse wheel) or holding Control and left-clicking on 
-any item name or item icon. This will open a window listing items with the same
-model where you can link or try them on.
+- メインウィンドウの「プレート」→「新規作成」で、空のプレートを作って
+編集できます。
+
+- メインウィンドウの「プレート」→「クリップボードから取り込み」で、
+共有されたプレートデータを取り込めます。
+
+- ミラージュプレート編集画面の左上にある「Glamaholic JP」メニューから
+「プレートとして保存」を選ぶと、ゲーム内のプレートを取り込めます。
+
+- 「調べる」画面の「Glamaholic JP」メニューから「プレートとして保存」を
+選ぶと、他のキャラクターの見た目をプレートにできます。
 
 ---
 
-# Advanced search
+# 同じ見た目の装備を探す
 
-The plate search box can be used to search for more than just plate names. Try
-the options below.
+アイテム名やアイコンをホイールクリック（または Ctrl を押しながら左クリック）
+すると、同じモデルを使っている装備の一覧が開きます。一覧からチャットへの
+リンクや試着ができます。
 
-- j:job can be used to search for a job by its abbreviation. Example: j:pld
+---
 
-- lvl:maxLevel can be used to search for plates equippable up to a specific
-level. Example: lvl:1
+# 詳細検索
 
-- t:tag can be used to search by tag.
+プレートの検索欄では、名前のほかに次の条件も使えます。
 
-- !t:tag can be used to exclude tags.
+- j:ジョブ で装備できるジョブを指定します。略称（j:pld）とジョブ名
+（j:ナイト）のどちらでも探せます。
 
-- id:itemId can be used to search for plates with the given item ID.
+- lvl:レベル で、指定したレベル以下で装備できるプレートに絞ります。
+例: lvl:1
 
-- i:itemName can be used to search for plates with the given item name. Example:
-i:skallic
+- t:タグ でタグを指定します。
+
+- !t:タグ で指定したタグを除外します。
+
+- id:アイテムID で、指定したアイテムを含むプレートに絞ります。
+
+- i:アイテム名 で、指定した名前の装備を含むプレートに絞ります。
+
+ひらがなとカタカナ、全角と半角の違いは区別せずに検索します。

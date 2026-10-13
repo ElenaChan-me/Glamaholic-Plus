@@ -1,63 +1,99 @@
-# Glamaholic
+# Glamaholic JP
 
-## How to use Glamaholic
+[Glamaholic](https://github.com/caitlyn-gg/Glamaholic) を日本語化・軽量化した Dalamud プラグインです。
+ミラージュプレートを好きなだけ保存し、ミラージュドレッサーで呼び出せます。
 
-Thank you for installing Glamaholic! This plugin can act as your home for
-glamours, since you can store as many as you would like in it. To get started,
-try reading the section called "Adding glamour plates". Keep in mind that you'll
-need to be editing your plates at the Glamour Dresser to be able to copy those
-plates into the plugin or apply new plates.
+A Japanese-localized and slimmed-down fork of the Dalamud plugin [Glamaholic](https://github.com/caitlyn-gg/Glamaholic).
+It lets you save as many glamour plates as you like and apply them at the Glamour Dresser.
 
----
+## 注意 / Warning
 
-## Adding glamour plates
+本プラグインはゲームクライアントに組み込んで動作する外部ツールです。
+FINAL FANTASY XIV の利用規約では外部ツールの使用が禁止されており、使用が確認された場合はアカウントの利用停止などの対象になります。
+利用は自己責任で行ってください。
 
-- From the main Glamaholic window, click "Plates" and then "New" to create an
-  empty glamour plate to edit from scratch.
+This plugin runs inside the game client. Third-party tools are prohibited by the FINAL FANTASY XIV Terms of Service,
+and their use may result in account suspension. Use at your own risk.
 
-- From the main Glamaholic window, click "Plates", hover over "Import", paste
-  a shared plate, then press Enter to import a shared plate.
+## 本家からの変更点 / Changes from the original
 
-- Click on the Glamaholic menu at the top left of the Glamour Plate Creation
-  window, then hover over "Create glamour plate" to import plates from the game.
+変更日 / Date of modification: 2026-10-13（ベース / based on: Glamaholic 1.15.2, commit `7ba1ae3`）
 
-- Open the Examine window a character, click the "Glamaholic" menu, then click
-  "Create glamour plate" to create a glamour plate from someone else's outfit.
+### 日本語化 / Localization
 
----
+- 画面の文言をすべて日本語化（`Glamaholic/Loc.cs` に集約）
+  All UI text translated into Japanese and collected in `Glamaholic/Loc.cs`
+- アイテム名・カララント名をクライアントの言語で表示・検索（本家は英語データ固定）
+  Item and dye names are shown and searched in the client language (the original always used English data)
+- 検索でひらがな/カタカナ、全角/半角、大文字/小文字を区別しない
+  Search ignores kana type, width and case
+- `j:` 検索で英語略称に加えて日本語のジョブ名を使用可能（例: `j:ナイト`）
+  `j:` filter also accepts localized job names
+- ヘルプ・部位名・テキスト出力を日本語化
+  Help, slot names and text export are localized
 
-## Finding items that share a model
+### 軽量化 / Slimming down
 
-You can search for items that share the same model as another item by either
-middle-clicking (click with mouse wheel) or holding Control and left-clicking on
-any item name or item icon. This will open a window listing items with the same
-model where you can link or try them on.
+- Eorzea Collection からの取り込み（外部サイトとの通信）を削除
+  Removed Eorzea Collection import (network access)
+- Glamourer 連携と `Glamourer.Api` サブモジュールを削除
+  Removed Glamourer integration and the `Glamourer.Api` submodule
+- 作成のみで使われていなかったゲーム関数フック、Ko-fi ボタン、英語の更新履歴、IDA スクリプト、旧 CI 設定を削除
+  Removed an unused game hook, the Ko-fi button, the English changelog popup, the IDA script and the old CI config
+- 描画のたびに行っていた愛蔵品キャビネットのシート検索・ドレッサーの走査・カララント一覧の作成をキャッシュ化
+  Cached armoire/dresser lookups and the dye list that were recomputed every frame
 
----
+### その他 / Other
 
-## Advanced search
+- 本家と同時に導入できるよう、内部名を `GlamaholicJP`、コマンドを `/glamjp` に変更
+  Internal name changed to `GlamaholicJP` and the command to `/glamjp` so it can coexist with the original
+- 初回起動時、本家 Glamaholic の保存データ（`pluginConfigs/Glamaholic.json`）があればコピーして引き継ぐ（本家のファイルは変更しない）
+  On first launch, plates saved by the original plugin are copied over (the original file is left untouched)
+- ドレッサー内の装備だけを表示する設定で、HQ 品が表示されない問題を修正
+  Fixed HQ items missing from the "obtained only" item list
 
-The plate search box can be used to search for more than just plate names. Try
-the options below.
+## 使い方 / Usage
 
-- j:job can be used to search for a job by its abbreviation. Example: j:pld
+`/glamjp` でメインウィンドウを開きます。使い方はウィンドウの「ヘルプ」メニューを参照してください。
 
-- lvl:maxLevel can be used to search for plates equippable up to a specific
-  level. Example: lvl:1
+Open the main window with `/glamjp`. See the Help menu in the window for details.
 
-- t:tag can be used to search by tag.
+## ビルド / Build
 
-- !t:tag can be used to exclude tags.
+.NET SDK 10 と Dalamud の参照ライブラリが必要です。
+Requires the .NET 10 SDK and the Dalamud reference assemblies.
 
-- id:itemId can be used to search for plates with the given item ID.
+```powershell
+# XIVLauncher で Dalamud を使っている環境では参照先の指定は不要
+dotnet build Glamaholic.sln -c Release
 
-- i:itemName can be used to search for plates with the given item name. Example:
-  i:skallic
+# Dalamud の配布物を別の場所に展開した場合
+dotnet build Glamaholic.sln -c Release -p:DalamudLibPath="C:\path\to\dalamud\"
+```
 
----
+出力は `Glamaholic/bin/x64/Release/GlamaholicJP/` です。Dalamud の設定「実験的機能」で開発用プラグインの場所に `GlamaholicJP.dll` を追加すると読み込めます。
 
-## Attribution & Updating
+The output is written to `Glamaholic/bin/x64/Release/GlamaholicJP/`. Add `GlamaholicJP.dll` as a dev plugin location in Dalamud's experimental settings.
 
-This plugin was originally developed by Anna [here](https://git.anna.lgbt/anna/Glamaholic) ([Ko-fi](https://ko-fi.com/lojewalo)).
+## ブランチ / Branches
 
-This repository is a continuation of their efforts to keep the plugin up to date. If you would like to contribute to updating this plugin, please create a PR or open an issue. Most information that is prone to change is being moved into one location within the project and documented.
+- `main`: 安定版 / stable
+- `develop`: 開発統合ブランチ / integration
+- `feature/*`: 作業用 / work in progress
+- `upstream`（リモート）: 本家 / the original repository
+
+## クレジット / Credits
+
+本プラグインは Anna 氏が開発し（[原リポジトリ](https://git.anna.lgbt/anna/Glamaholic)、[Ko-fi](https://ko-fi.com/lojewalo)）、
+Caitlyn 氏らが [caitlyn-gg/Glamaholic](https://github.com/caitlyn-gg/Glamaholic) で保守している Glamaholic を元にしています。
+
+This plugin is based on Glamaholic, originally developed by Anna ([original repository](https://git.anna.lgbt/anna/Glamaholic), [Ko-fi](https://ko-fi.com/lojewalo))
+and maintained by Caitlyn and contributors at [caitlyn-gg/Glamaholic](https://github.com/caitlyn-gg/Glamaholic).
+
+## ライセンス / License
+
+本家と同じく [EUPL-1.2](LICENCE) です。
+Licensed under the [EUPL-1.2](LICENCE), the same as the original.
+
+FINAL FANTASY は株式会社スクウェア・エニックス・ホールディングスの登録商標です。本プラグインはスクウェア・エニックスとは関係ありません。
+FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd. This plugin is not affiliated with Square Enix.

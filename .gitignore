@@ -367,3 +367,8 @@ FodyWeavers.xsd
 Glamaholic/.github/
 
 .idea/
+
+# Claude Code local configuration
+CLAUDE.md
+.claude/
+

@@ -5,9 +5,22 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Game.NativeWrapper;
 using Lumina.Excel.Sheets;
 using System;
+using System.Globalization;
 
 namespace Glamaholic {
     internal static class Util {
+        // ひらがな・カタカナ、全角・半角、大文字・小文字の違いを無視して検索する
+        private static readonly CompareInfo SearchCompare = GetSearchCompareInfo();
+        private const CompareOptions SearchOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth;
+
+        private static CompareInfo GetSearchCompareInfo() {
+            try {
+                return CultureInfo.GetCultureInfo("ja-JP").CompareInfo;
+            } catch (CultureNotFoundException) {
+                return CultureInfo.InvariantCulture.CompareInfo;
+            }
+        }
+
         internal const string PlateAddon = "MiragePrismMiragePlate";
         private const string BoxAddon = "MiragePrismPrismBox";
         private const string ArmoireAddon = "CabinetWithdraw";
@@ -32,7 +45,7 @@ namespace Glamaholic {
             return plateOpen && (boxOpen || armoireOpen);
         }
 
-        internal static bool DrawTextInput(string id, ref string input, int max = 512, string message = "Press Enter to save.", ImGuiInputTextFlags flags = ImGuiInputTextFlags.None) {
+        internal static bool DrawTextInput(string id, ref string input, int max = 512, string message = Loc.PressEnterToSave, ImGuiInputTextFlags flags = ImGuiInputTextFlags.None) {
             ImGui.SetNextItemWidth(-1);
             var ret = ImGui.InputText($"##{id}", ref input, max, ImGuiInputTextFlags.EnterReturnsTrue | flags);
 
@@ -178,8 +191,17 @@ namespace Glamaholic {
             return ImGui.GetIO().KeyCtrl && ImGui.IsItemClicked(ImGuiMouseButton.Left);
         }
 
+        internal static bool IsItemSkipped(Item item) => DataCache.IsSkippedItem(item.RowId);
+
+        internal static bool ContainsText(string text, string query) =>
+            SearchCompare.IndexOf(text, query, SearchOptions) >= 0;
+
+        internal static bool TextEquals(string a, string b) =>
+            SearchCompare.Compare(a, b, SearchOptions) == 0;
+
+        // 英語シートの行を渡すこと。日本語名では "Dated" を判定できない。
         // https://github.com/ufx/GarlandTools/blob/5b2ec54dc792175a1d565fddb6c6b975b9a9ff64/Garland.Data/Hacks.cs#L89
-        internal static bool IsItemSkipped(Item item) {
+        internal static bool IsSkippedByEnglishName(Item item) {
             var name = item.Name.ExtractText();
             return item.RowId switch {
                 // Dated Radz-at-Han Coin

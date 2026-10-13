@@ -27,7 +27,8 @@ namespace Glamaholic {
                 }
 
                 var title = lines[0][1..].Trim();
-                var content = string.Join(" ", lines[1..]
+                // 日本語の文中に空白が入らないよう、折り返した行はそのままつなげる
+                var content = string.Join("", lines[1..]
                     .SkipWhile(string.IsNullOrWhiteSpace)
                     .Select(line => string.IsNullOrWhiteSpace(line) ? "\n" : line));
                 this.Help.Add((title, content));

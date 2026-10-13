@@ -37,7 +37,7 @@ namespace Glamaholic.Ui {
             ImGui.SetNextWindowPos(ImGui.GetMousePos(), ImGuiCond.Appearing);
 
             const ImGuiWindowFlags flags = ImGuiWindowFlags.NoSavedSettings;
-            if (!ImGui.Begin($"Alternative Finder: {this.Item.Name}##{this.Id}", ref this.Visible, flags)) {
+            if (!ImGui.Begin($"{Loc.AlternativeFinderTitle(this.Item.Name.ExtractText())}##{this.Id}", ref this.Visible, flags)) {
                 ImGui.End();
                 return;
             }
@@ -57,8 +57,8 @@ namespace Glamaholic.Ui {
 
             ImGui.NextColumn();
 
-            ImGui.TextUnformatted("Click: link to chat");
-            ImGui.TextUnformatted("Right-click: try on");
+            ImGui.TextUnformatted(Loc.ClickToLink);
+            ImGui.TextUnformatted(Loc.RightClickToTryOn);
 
             ImGui.Columns();
 
