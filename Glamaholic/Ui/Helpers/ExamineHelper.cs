@@ -27,17 +27,17 @@ namespace Glamaholic.Ui.Helpers {
         }
 
         private void DrawDropdown() {
-            if (ImGui.Selectable($"Open {Plugin.Name}")) {
+            if (ImGui.Selectable(Loc.Open(Plugin.Name))) {
                 this.Ui.OpenMainInterface();
             }
 
             if (ImGui.IsWindowAppearing()) {
-                this._nameInput = this.Ui.Plugin.Functions.ExamineName ?? "Copied glamour";
+                this._nameInput = this.Ui.Plugin.Functions.ExamineName ?? Loc.CopiedGlamour;
             }
 
             HelperUtil.DrawCreatePlateMenu(this.Ui, GetItems, ref this._nameInput);
 
-            if (ImGui.Selectable("Try on")) {
+            if (ImGui.Selectable(Loc.TryOn)) {
                 var items = GetItems();
                 if (items != null) {
                     this.Ui.TryOn(items.Values);

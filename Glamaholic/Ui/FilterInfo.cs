@@ -63,8 +63,13 @@ namespace Glamaholic.Ui {
                 }
 
                 if (word.StartsWith("j:")) {
-                    var abbr = word[2..].ToLowerInvariant();
-                    var job = this.Data.GetExcelSheet<ClassJob>()!.FirstOrNull(row => row.Abbreviation.ExtractText().ToLowerInvariant() == abbr);
+                    var abbr = word[2..];
+                    // 英語の略称（j:pld）に加え、クライアント言語の略称やジョブ名（j:ナイト）でも探せるようにする
+                    var job = this.Data.GetExcelSheet<ClassJob>(ClientLanguage.English)!
+                                  .FirstOrNull(row => string.Equals(row.Abbreviation.ExtractText(), abbr, System.StringComparison.OrdinalIgnoreCase))
+                              ?? this.Data.GetExcelSheet<ClassJob>()!
+                                  .FirstOrNull(row => row.RowId != 0
+                                                      && (Util.TextEquals(row.Abbreviation.ExtractText(), abbr) || Util.TextEquals(row.Name.ExtractText(), abbr)));
                     if (job != null) {
                         this.WantedJobs.Add(job.Value);
                     }
@@ -136,12 +141,12 @@ namespace Glamaholic.Ui {
                 queryWords.Add(word);
             }
 
-            this.Query = string.Join(' ', queryWords).ToLowerInvariant();
+            this.Query = string.Join(' ', queryWords);
         }
 
         internal bool Matches(SavedPlate plate) {
             // if the name doesn't match the query, it's not a match, obviously
-            if (this.Query.Length != 0 && !plate.Name.ToLowerInvariant().Contains(this.Query)) {
+            if (this.Query.Length != 0 && !Util.ContainsText(plate.Name, this.Query)) {
                 return false;
             }
 
@@ -186,12 +191,11 @@ namespace Glamaholic.Ui {
                     .Select(mirage => sheet.GetRowOrDefault(mirage.ItemId % Util.HqItemOffset))
                     .Where(item => item != null)
                     .Cast<Item>()
-                    .Select(item => item.Name.ExtractText().ToLowerInvariant())
+                    .Select(item => item.Name.ExtractText())
                     .ToArray();
 
                 foreach (var needle in this.ItemNames) {
-                    var lower = needle.ToLowerInvariant();
-                    if (!names.Any(name => name.Contains(lower))) {
+                    if (!names.Any(name => Util.ContainsText(name, needle))) {
                         return false;
                     }
                 }

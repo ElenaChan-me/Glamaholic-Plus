@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download Dalamud
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP "dalamud"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          Invoke-WebRequest -Uri "https://github.com/goatcorp/dalamud-distrib/raw/main/latest.zip" -OutFile "$dir\latest.zip"
+          Expand-Archive "$dir\latest.zip" -DestinationPath "$dir\lib" -Force
+          "DALAMUD_LIB=$dir\lib\" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build
+        run: dotnet build Glamaholic.sln -c Release -p:DalamudLibPath="${{ env.DALAMUD_LIB }}"
+
+      # XIVToolHub はこの latest.zip を取得してインストールする
+      - name: Create release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" "Glamaholic/bin/x64/Release/GlamaholicJP/latest.zip" `
+            --title "Glamaholic JP ${{ github.ref_name }}" --notes "Glamaholic JP ${{ github.ref_name }}"

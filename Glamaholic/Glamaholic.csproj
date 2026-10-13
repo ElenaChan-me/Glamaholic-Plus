@@ -2,7 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0-windows7.0</TargetFramework>
-        <Version>1.15.2</Version>
+        <AssemblyName>GlamaholicJP</AssemblyName>
+        <RootNamespace>Glamaholic</RootNamespace>
+        <Version>1.15.2.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Nullable>enable</Nullable>
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -37,10 +39,6 @@
 
     <ItemGroup>
       <None Include=".editorconfig" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\thirdparty\Glamourer.Api\Glamourer.Api.csproj" />
     </ItemGroup>
 
 </Project>

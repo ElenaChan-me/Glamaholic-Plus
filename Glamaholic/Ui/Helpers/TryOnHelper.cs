@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace Glamaholic.Ui.Helpers {
     internal class TryOnHelper {
-        private const string PlateName = "Fitting Room";
+        private const string PlateName = Loc.FittingRoom;
 
         // see file footer for information about these offsets
         private const int TryOnToggleOffset = 0x366; // 870
@@ -38,7 +38,7 @@ namespace Glamaholic.Ui.Helpers {
         }
 
         private void DrawDropdown() {
-            if (ImGui.Selectable($"Open {Plugin.Name}")) {
+            if (ImGui.Selectable(Loc.Open(Plugin.Name))) {
                 this.Ui.OpenMainInterface();
             }
 
@@ -49,27 +49,6 @@ namespace Glamaholic.Ui.Helpers {
             if (HelperUtil.DrawCreatePlateMenu(this.Ui, GetTryOnItems, ref this._nameInput)) {
                 this._nameInput = PlateName;
             }
-
-            if (Interop.Glamourer.IsAvailable()) {
-                if (ImGui.Selectable("Try on Glamourer")) {
-                    this.TryOnGlamourer(false);
-                }
-
-                if (ImGui.Selectable("Try on Glamourer - New Emperor")) {
-                    this.TryOnGlamourer(true);
-                }
-            }
-        }
-
-        private void TryOnGlamourer(bool withEmperor) {
-            if (Service.ObjectTable.LocalPlayer == null) return;
-            var plate = new SavedPlate("Glamourer") {
-                Items = GetTryOnItems(),
-                FillWithNewEmperor = withEmperor
-            };
-
-            Configuration.SanitisePlate(plate);
-            Interop.Glamourer.TryOn(Service.ObjectTable.LocalPlayer.ObjectIndex, plate);
         }
 
         private static unsafe Dictionary<PlateSlot, SavedGlamourItem> GetTryOnItems() {
