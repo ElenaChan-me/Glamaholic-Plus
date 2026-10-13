@@ -13,24 +13,6 @@
         "requested": "[1.2.39, )",
         "resolved": "1.2.39",
         "contentHash": "fcFN01tDTIQqDuTwr1jUQK/geofiwjG5DycJQOnC72i1SsLAk1ELe+apBOuZ11UMQG8YKFZG1FgvjZPbqHyatg=="
-      },
-      "Fody": {
-        "type": "Direct",
-        "requested": "[6.8.0, )",
-        "resolved": "6.8.0",
-        "contentHash": "hfZ/f8Mezt8aTkgv9nsvFdYoQ809/AqwsJlOGOPYIfBcG2aAIG3v3ex9d8ZqQuFYyMoucjRg4eKy3VleeGodKQ=="
-      },
-      "Resourcer.Fody": {
-        "type": "Direct",
-        "requested": "[1.8.1, )",
-        "resolved": "1.8.1",
-        "contentHash": "FPeK4jKyyX5+mIjTnHNReGZk2/2xDhmu44UsBI5w9WEhbr4oTMmht3rnBr46A+GCGepC4+2N41K4vExDYiGNVQ==",
-        "dependencies": {
-          "Fody": "6.6.4"
-        }
-      },
-      "glamourer.api": {
-        "type": "Project"
       }
     }
   }

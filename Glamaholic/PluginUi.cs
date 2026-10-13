@@ -4,6 +4,7 @@ using Glamaholic.Ui;
 using Glamaholic.Ui.Helpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Glamaholic {
@@ -16,19 +17,22 @@ namespace Glamaholic {
         public TryOnHelper TryOnHelper { get; }
         internal List<AlternativeFinder> AlternativeFinders { get; } = new();
         internal List<(string, string)> Help { get; } = new();
+        private LanguageFont Font { get; }
 
-        internal PluginUi(Plugin plugin) {
+        internal PluginUi(Plugin plugin, LanguageFont font) {
             this.Plugin = plugin;
+            this.Font = font;
 
-            foreach (var entry in Resourcer.Resource.AsString("help.txt").Split("---")) {
+            // 日本語・中国語は文中に空白が入らないよう、折り返した行はそのままつなげる
+            var separator = Loc.Language is UiLanguage.Japanese or UiLanguage.ChineseSimplified ? "" : " ";
+            foreach (var entry in ReadHelpText().Split("---")) {
                 var lines = entry.Trim().Split(new[] { "\n", "\r\n" }, StringSplitOptions.TrimEntries);
                 if (lines.Length == 0 || !lines[0].StartsWith("#")) {
                     continue;
                 }
 
                 var title = lines[0][1..].Trim();
-                // 日本語の文中に空白が入らないよう、折り返した行はそのままつなげる
-                var content = string.Join("", lines[1..]
+                var content = string.Join(separator, lines[1..]
                     .SkipWhile(string.IsNullOrWhiteSpace)
                     .Select(line => string.IsNullOrWhiteSpace(line) ? "\n" : line));
                 this.Help.Add((title, content));
@@ -63,7 +67,18 @@ namespace Glamaholic {
             return icon;
         }
 
+        private static string ReadHelpText() {
+            using var stream = typeof(PluginUi).Assembly.GetManifestResourceStream(Loc.HelpResource);
+            if (stream == null) {
+                return string.Empty;
+            }
+
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
         private void Draw() {
+            using var font = this.Font.Push();
             this.MainInterface.Draw();
             this.EditorHelper.Draw();
             this.ExamineHelper.Draw();

@@ -9,15 +9,21 @@ namespace Glamaholic {
         internal GameFunctions Functions { get; }
         internal PluginUi Ui { get; }
         private Commands Commands { get; }
+        private LanguageFont Font { get; }
 
 #pragma warning disable 8618
         public Plugin(IDalamudPluginInterface pluginInterface) {
             pluginInterface.Create<Service>();
 
+            // 文言は画面やコマンドを作る前に決めておく
+            var hubSettings = HubSettings.Load(Service.Interface.AssemblyLocation.DirectoryName);
+            Loc.Language = hubSettings.ResolveLanguage(Service.Interface.UiLanguage);
+            this.Font = new LanguageFont(Service.Interface.UiBuilder, Loc.Language, hubSettings.ResolveFontPath(Loc.Language));
+
             this.Config = Configuration.LoadAndMigrate(Service.Interface!.ConfigFile);
 
             this.Functions = new GameFunctions(this);
-            this.Ui = new PluginUi(this);
+            this.Ui = new PluginUi(this, this.Font);
             this.Commands = new Commands(this);
         }
 #pragma warning restore 8618
@@ -26,6 +32,7 @@ namespace Glamaholic {
             this.Commands.Dispose();
             this.Ui.Dispose();
             this.Functions.Dispose();
+            this.Font.Dispose();
         }
 
         public void LogTroubleshooting(string message) {

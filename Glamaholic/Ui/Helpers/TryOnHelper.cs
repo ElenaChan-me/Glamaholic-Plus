@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace Glamaholic.Ui.Helpers {
     internal class TryOnHelper {
-        private const string PlateName = Loc.FittingRoom;
+        private static string PlateName => Loc.FittingRoom;
 
         // see file footer for information about these offsets
         private const int TryOnToggleOffset = 0x366; // 870

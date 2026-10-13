@@ -532,7 +532,7 @@ namespace Glamaholic.Ui {
             ImGui.Dummy(new Vector2(0, 1));
 
             ImGui.PushItemWidth(-1);
-            if (Util.IconButton(FontAwesomeIcon.Plus, tooltip: Loc.NewPlate)) {
+            if (Util.IconButton(FontAwesomeIcon.Plus, tooltip: Loc.NewPlateTooltip)) {
                 ImGui.OpenPopup("new-plate-folder-popup");
                 _newPlateTargetFolder = null;
             }
