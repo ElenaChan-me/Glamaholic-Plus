@@ -31,6 +31,10 @@ and their use may result in account suspension. Use at your own risk.
   `j:` filter also accepts localized job names
 - ヘルプ・部位名・テキスト出力を日本語化
   Help, slot names and text export are localized
+- 表示言語を日本語・英語・韓国語・中国語（簡体字）から選択可能。XIVToolHub でインストール時に選び、日本語の場合は追加フォントも選べる（ハブを使わない場合は Dalamud の言語設定に従う）
+  Display language can be Japanese, English, Korean or Simplified Chinese, chosen in XIVToolHub (with an optional font for Japanese); without the hub, Dalamud's language is used
+- 配色を XIVToolHub のテーマ（黒・赤 / 白・水色）に合わせて表示。ハブを使わない場合は Dalamud の配色のまま
+  Colors follow the XIVToolHub theme (Black/Red or White/Light Blue); without the hub, Dalamud's style is kept
 
 ### 軽量化 / Slimming down
 
