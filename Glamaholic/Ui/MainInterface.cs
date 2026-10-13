@@ -108,14 +108,14 @@ namespace Glamaholic.Ui {
                 return;
             }
 
-            if (ImGui.BeginMenu("Plates")) {
-                if (ImGui.MenuItem("New")) {
-                    var id = this.Ui.Plugin.Config.AddPlate(new SavedPlate("Untitled Plate"));
+            if (ImGui.BeginMenu(Loc.MenuPlates)) {
+                if (ImGui.MenuItem(Loc.MenuNew)) {
+                    var id = this.Ui.Plugin.Config.AddPlate(new SavedPlate(Loc.NewPlate));
                     this.Ui.Plugin.SaveConfig();
                     this.SwitchPlate(id, true);
                 }
 
-                if (ImGui.BeginMenu("Import from Clipboard")) {
+                if (ImGui.BeginMenu(Loc.MenuImportClipboard)) {
                     SharedPlate? clipPlate = null;
                     try {
                         clipPlate = JsonConvert.DeserializeObject<SharedPlate>(Util.GetClipboardText());
@@ -124,9 +124,9 @@ namespace Glamaholic.Ui {
                     }
 
                     if (clipPlate == null) {
-                        ImGui.TextDisabled("No valid plate data in clipboard.");
+                        ImGui.TextDisabled(Loc.NoPlateInClipboard);
                     } else {
-                        if (ImGui.MenuItem("To Root")) {
+                        if (ImGui.MenuItem(Loc.ToRoot)) {
                             var id = this.Ui.Plugin.Config.AddPlate(clipPlate.ToPlate());
                             this.Ui.Plugin.SaveConfig();
                             this.Ui.SwitchPlate(id);
@@ -134,7 +134,7 @@ namespace Glamaholic.Ui {
 
                         var folders = TreeUtils.GetAllFolders(this.Ui.Plugin.Config.Plates);
                         foreach (var (folderId, path) in folders) {
-                            if (ImGui.MenuItem($"To {path}")) {
+                            if (ImGui.MenuItem(Loc.AddTo(path))) {
                                 var id = this.Ui.Plugin.Config.AddPlate(clipPlate.ToPlate(), folderId);
                                 this.Ui.Plugin.SaveConfig();
                                 this.Ui.SwitchPlate(id);
@@ -149,17 +149,17 @@ namespace Glamaholic.Ui {
             }
 
             var anyChanged = false;
-            if (ImGui.BeginMenu("Settings")) {
-                anyChanged |= ImGui.MenuItem("Show plate editor menu", "", ref this.Ui.Plugin.Config.ShowEditorMenu);
-                anyChanged |= ImGui.MenuItem("Show examine window menu", "", ref this.Ui.Plugin.Config.ShowExamineMenu);
-                anyChanged |= ImGui.MenuItem("Show try on menu", "", ref this.Ui.Plugin.Config.ShowTryOnMenu);
+            if (ImGui.BeginMenu(Loc.MenuSettings)) {
+                anyChanged |= ImGui.MenuItem(Loc.SettingShowEditorMenu, "", ref this.Ui.Plugin.Config.ShowEditorMenu);
+                anyChanged |= ImGui.MenuItem(Loc.SettingShowExamineMenu, "", ref this.Ui.Plugin.Config.ShowExamineMenu);
+                anyChanged |= ImGui.MenuItem(Loc.SettingShowTryOnMenu, "", ref this.Ui.Plugin.Config.ShowTryOnMenu);
                 ImGui.Separator();
-                anyChanged |= ImGui.MenuItem("Troubleshooting mode", "", ref this.Ui.Plugin.Config.TroubleshootingMode);
+                anyChanged |= ImGui.MenuItem(Loc.SettingTroubleshooting, "", ref this.Ui.Plugin.Config.TroubleshootingMode);
 
                 ImGui.EndMenu();
             }
 
-            if (ImGui.BeginMenu("Help")) {
+            if (ImGui.BeginMenu(Loc.MenuHelp)) {
                 foreach (var (title, content) in this.Ui.Help) {
                     if (!ImGui.BeginMenu(title)) {
                         continue;
@@ -188,7 +188,7 @@ namespace Glamaholic.Ui {
             }
 
             ImGui.SetNextItemWidth(-1);
-            if (ImGui.InputTextWithHint("##plate-filter", "Search...", ref this._plateFilter, 512, ImGuiInputTextFlags.AutoSelectAll)) {
+            if (ImGui.InputTextWithHint("##plate-filter", Loc.SearchHint, ref this._plateFilter, 512, ImGuiInputTextFlags.AutoSelectAll)) {
                 this.PlateFilter = this._plateFilter.Length == 0
                     ? null
                     : new FilterInfo(Service.DataManager, this._plateFilter);
@@ -229,7 +229,7 @@ namespace Glamaholic.Ui {
                                 unsafe {
                                     ImGui.SetDragDropPayload("TREE_NODE", null, 0);
                                 }
-                                ImGui.Text($"Moving '{leaf.Name}'");
+                                ImGui.Text(Loc.Moving(leaf.Name));
                                 ImGui.EndDragDropSource();
                             }
 
@@ -263,7 +263,7 @@ namespace Glamaholic.Ui {
 
                             // Right-click context menu for plate node
                             if (ImGui.BeginPopupContextItem($"plate-node-context-{node.Id}")) {
-                                if (ImGui.BeginMenu("Move to Folder")) {
+                                if (ImGui.BeginMenu(Loc.MoveToFolder)) {
                                     var selected = Helpers.HelperUtil.DrawFolderMenuItems(this.Ui.Plugin.Config.Plates);
                                     if (selected.HasValue) {
                                         TreeUtils.MoveNodeToFolder(this.Ui.Plugin.Config.Plates, node.Id,
@@ -276,7 +276,7 @@ namespace Glamaholic.Ui {
 
                                 ImGui.Separator();
 
-                                if (ImGui.MenuItem("Delete")) {
+                                if (ImGui.MenuItem(Loc.Delete)) {
                                     _contextMenuNodeId = node.Id;
                                     _confirmDeleteNode = true;
                                 }
@@ -288,8 +288,8 @@ namespace Glamaholic.Ui {
                             }
 
                             if (ImGui.BeginPopup($"confirm-delete-plate-{node.Id}")) {
-                                ImGui.TextUnformatted("Delete this plate? This cannot be undone.");
-                                if (ImGui.Button("Delete")) {
+                                ImGui.TextUnformatted(Loc.ConfirmDeletePlate);
+                                if (ImGui.Button(Loc.Delete)) {
                                     deferredActions.Add((node.Id, null));
                                     _confirmDeleteNode = false;
                                     _contextMenuNodeId = null;
@@ -298,7 +298,7 @@ namespace Glamaholic.Ui {
 
                                 ImGui.SameLine();
 
-                                if (ImGui.Button("Cancel")) {
+                                if (ImGui.Button(Loc.Cancel)) {
                                     _confirmDeleteNode = false;
                                     _contextMenuNodeId = null;
                                     ImGui.CloseCurrentPopup();
@@ -321,7 +321,7 @@ namespace Glamaholic.Ui {
                                 unsafe {
                                     ImGui.SetDragDropPayload("TREE_NODE", null, 0);
                                 }
-                                ImGui.Text($"Moving folder '{folder.Name}'");
+                                ImGui.Text(Loc.MovingFolder(folder.Name));
                                 ImGui.EndDragDropSource();
                             }
 
@@ -364,7 +364,7 @@ namespace Glamaholic.Ui {
 
                             // Right-click context menu for folder node
                             if (ImGui.BeginPopupContextItem($"folder-node-context-{node.Id}")) {
-                                if (ImGui.MenuItem("Rename")) {
+                                if (ImGui.MenuItem(Loc.Rename)) {
                                     _contextMenuNodeId = node.Id;
                                     _showFolderRename = true;
                                     _folderRenameInput = folder.Name;
@@ -372,13 +372,13 @@ namespace Glamaholic.Ui {
 
                                 ImGui.Separator();
 
-                                if (ImGui.MenuItem("Delete Folder (and all contents)")) {
+                                if (ImGui.MenuItem(Loc.DeleteFolderWithContents)) {
                                     _contextMenuNodeId = node.Id;
                                     _pendingFolderAction = 0;
                                     _confirmDeleteFolder = true;
                                 }
 
-                                if (ImGui.MenuItem("Delete Folder (move contents out)")) {
+                                if (ImGui.MenuItem(Loc.DeleteFolderMoveContents)) {
                                     _contextMenuNodeId = node.Id;
                                     _pendingFolderAction = 1;
                                     _confirmDeleteFolder = true;
@@ -393,12 +393,12 @@ namespace Glamaholic.Ui {
 
                             if (ImGui.BeginPopup($"confirm-delete-folder-{node.Id}")) {
                                 if (_pendingFolderAction == 0) {
-                                    ImGui.TextUnformatted("Delete this folder and ALL its contents? This cannot be undone.");
+                                    ImGui.TextUnformatted(Loc.ConfirmDeleteFolderWithContents);
                                 } else {
-                                    ImGui.TextUnformatted("Delete this folder and move all contents out?");
+                                    ImGui.TextUnformatted(Loc.ConfirmDeleteFolderMoveContents);
                                 }
 
-                                if (ImGui.Button("Delete")) {
+                                if (ImGui.Button(Loc.Delete)) {
                                     deferredActions.Add((node.Id, _pendingFolderAction));
                                     _confirmDeleteFolder = false;
                                     _contextMenuNodeId = null;
@@ -408,7 +408,7 @@ namespace Glamaholic.Ui {
 
                                 ImGui.SameLine();
 
-                                if (ImGui.Button("Cancel")) {
+                                if (ImGui.Button(Loc.Cancel)) {
                                     _confirmDeleteFolder = false;
                                     _contextMenuNodeId = null;
                                     _pendingFolderAction = null;
@@ -424,7 +424,7 @@ namespace Glamaholic.Ui {
                             }
 
                             if (ImGui.BeginPopup($"rename-folder-{node.Id}")) {
-                                ImGui.TextUnformatted("Rename Folder:");
+                                ImGui.TextUnformatted(Loc.FolderName);
                                 ImGui.SetNextItemWidth(250);
 
                                 if (ImGui.IsWindowAppearing()) {
@@ -433,7 +433,7 @@ namespace Glamaholic.Ui {
 
                                 ImGui.InputText("##folder-rename-input", ref _folderRenameInput, 128);
 
-                                if (ImGui.Button("Rename") && !string.IsNullOrWhiteSpace(_folderRenameInput)) {
+                                if (ImGui.Button(Loc.Rename) && !string.IsNullOrWhiteSpace(_folderRenameInput)) {
                                     folder.Name = _folderRenameInput.Trim();
                                     this.Ui.Plugin.SaveConfig();
                                     _showFolderRename = false;
@@ -443,7 +443,7 @@ namespace Glamaholic.Ui {
 
                                 ImGui.SameLine();
 
-                                if (ImGui.Button("Cancel")) {
+                                if (ImGui.Button(Loc.Cancel)) {
                                     _showFolderRename = false;
                                     _contextMenuNodeId = null;
                                     ImGui.CloseCurrentPopup();
@@ -532,13 +532,13 @@ namespace Glamaholic.Ui {
             ImGui.Dummy(new Vector2(0, 1));
 
             ImGui.PushItemWidth(-1);
-            if (Util.IconButton(FontAwesomeIcon.Plus, tooltip: "New Plate")) {
+            if (Util.IconButton(FontAwesomeIcon.Plus, tooltip: Loc.NewPlate)) {
                 ImGui.OpenPopup("new-plate-folder-popup");
                 _newPlateTargetFolder = null;
             }
 
             ImGui.SameLine();
-            if (Util.IconButton(FontAwesomeIcon.FolderPlus, tooltip: "New Folder")) {
+            if (Util.IconButton(FontAwesomeIcon.FolderPlus, tooltip: Loc.NewFolder)) {
                 ImGui.OpenPopup("new-folder-popup");
                 _newFolderNameInput = string.Empty;
             }
@@ -553,7 +553,7 @@ namespace Glamaholic.Ui {
             ImGui.PopItemWidth();
 
             if (ImGui.BeginPopup("new-folder-popup")) {
-                ImGui.TextUnformatted("Folder Name:");
+                ImGui.TextUnformatted(Loc.FolderName);
                 ImGui.SetNextItemWidth(-1);
 
                 // Caitlyn: Dalamud API 14 broke EnterReturnsTrue. Once that's fixed, this should be restored.
@@ -570,7 +570,7 @@ namespace Glamaholic.Ui {
 
                 ImGui.InputText("##new-folder-name", ref _newFolderNameInput, 128);
 
-                if (ImGui.Button("Create") && !string.IsNullOrWhiteSpace(_newFolderNameInput)) {
+                if (ImGui.Button(Loc.Create) && !string.IsNullOrWhiteSpace(_newFolderNameInput)) {
                     this.Ui.Plugin.Config.Plates.Insert(0, new FolderNode {
                         Name = _newFolderNameInput.Trim(),
                         Children = new List<TreeNode>()
@@ -581,7 +581,7 @@ namespace Glamaholic.Ui {
 
                 ImGui.SameLine();
 
-                if (ImGui.Button("Cancel")) {
+                if (ImGui.Button(Loc.Cancel)) {
                     ImGui.CloseCurrentPopup();
                 }
 
@@ -589,17 +589,17 @@ namespace Glamaholic.Ui {
             }
 
             if (ImGui.BeginPopup("new-plate-folder-popup")) {
-                ImGui.TextUnformatted("Folder:");
+                ImGui.TextUnformatted(Loc.TargetFolder);
                 ImGui.SetNextItemWidth(200);
                 var folderChoice = Helpers.HelperUtil.DrawFolderCombo(
                     this.Ui.Plugin.Config.Plates, _newPlateTargetFolder, "##new-plate-folder");
                 if (folderChoice.HasValue)
                     _newPlateTargetFolder = folderChoice.Value;
 
-                if (ImGui.Button("Create")) {
+                if (ImGui.Button(Loc.Create)) {
                     Guid? target = (_newPlateTargetFolder.HasValue && _newPlateTargetFolder.Value != Guid.Empty)
                         ? _newPlateTargetFolder : null;
-                    var id = this.Ui.Plugin.Config.AddPlate(new SavedPlate("Untitled Plate"), target);
+                    var id = this.Ui.Plugin.Config.AddPlate(new SavedPlate(Loc.NewPlate), target);
                     this.Ui.Plugin.SaveConfig();
                     this.SwitchPlate(id, true);
                     ImGui.CloseCurrentPopup();
@@ -607,7 +607,7 @@ namespace Glamaholic.Ui {
 
                 ImGui.SameLine();
 
-                if (ImGui.Button("Cancel")) {
+                if (ImGui.Button(Loc.Cancel)) {
                     ImGui.CloseCurrentPopup();
                 }
 
@@ -630,71 +630,47 @@ namespace Glamaholic.Ui {
                 ImGui.SetKeyboardFocusHere(-1);
             }
 
-            ImGui.TextUnformatted("Primary Dye");
+            ImGui.TextUnformatted(Loc.Dye1);
             ImGui.NewLine();
-
-            if (ImGui.BeginChild("dye 1 picker", new Vector2(250, 350), false, ImGuiWindowFlags.HorizontalScrollbar)) {
-                if (ImGui.Selectable("None", mirage.Stain1 == 0)) {
-                    mirage.Stain1 = 0;
-                    ImGui.CloseCurrentPopup();
-                }
-
-                var filter = this._dyeFilter.ToLowerInvariant();
-
-                foreach (var stain in Service.DataManager.GetExcelSheet<Stain>()!) {
-                    if (stain.RowId == 0 || stain.Shade == 0) {
-                        continue;
-                    }
-
-                    if (filter.Length > 0 && !stain.Name.ExtractText().ToLowerInvariant().Contains(filter)) {
-                        continue;
-                    }
-
-                    if (ImGui.Selectable($"{stain.Name}##{stain.RowId}", mirage.Stain1 == stain.RowId)) {
-                        mirage.Stain1 = (byte) stain.RowId;
-                        ImGui.CloseCurrentPopup();
-                    }
-                }
-
-                ImGui.EndChild();
-            }
+            mirage.Stain1 = this.DrawDyePicker("dye 1 picker", mirage.Stain1);
 
             if (_editingItemDyeCount == 2) {
                 ImGui.NewLine();
                 ImGui.Separator();
                 ImGui.NewLine();
 
-                ImGui.TextUnformatted("Secondary Dye");
+                ImGui.TextUnformatted(Loc.Dye2);
                 ImGui.NewLine();
-
-                if (ImGui.BeginChild("dye 2 picker", new Vector2(250, 350), false, ImGuiWindowFlags.HorizontalScrollbar)) {
-                    if (ImGui.Selectable("None", mirage.Stain2 == 0)) {
-                        mirage.Stain2 = 0;
-                        ImGui.CloseCurrentPopup();
-                    }
-
-                    var filter = this._dyeFilter.ToLowerInvariant();
-
-                    foreach (var stain in Service.DataManager.GetExcelSheet<Stain>()!) {
-                        if (stain.RowId == 0 || stain.Shade == 0) {
-                            continue;
-                        }
-
-                        if (filter.Length > 0 && !stain.Name.ExtractText().ToLowerInvariant().Contains(filter)) {
-                            continue;
-                        }
-
-                        if (ImGui.Selectable($"{stain.Name}##{stain.RowId}", mirage.Stain2 == stain.RowId)) {
-                            mirage.Stain2 = (byte) stain.RowId;
-                            ImGui.CloseCurrentPopup();
-                        }
-                    }
-
-                    ImGui.EndChild();
-                }
+                mirage.Stain2 = this.DrawDyePicker("dye 2 picker", mirage.Stain2);
             }
 
             ImGui.EndPopup();
+        }
+
+        private byte DrawDyePicker(string id, byte current) {
+            var selected = current;
+            if (!ImGui.BeginChild(id, new Vector2(250, 350), false, ImGuiWindowFlags.HorizontalScrollbar)) {
+                return selected;
+            }
+
+            if (ImGui.Selectable(Loc.NoDye, current == 0)) {
+                selected = 0;
+                ImGui.CloseCurrentPopup();
+            }
+
+            foreach (var dye in DataCache.DyeOptions.Value) {
+                if (this._dyeFilter.Length > 0 && !Util.ContainsText(dye.Name, this._dyeFilter)) {
+                    continue;
+                }
+
+                if (ImGui.Selectable($"{dye.Name}##{dye.Id}", current == dye.Id)) {
+                    selected = dye.Id;
+                    ImGui.CloseCurrentPopup();
+                }
+            }
+
+            ImGui.EndChild();
+            return selected;
         }
 
         private unsafe void DrawItemPopup(string itemPopup, SavedPlate plate, PlateSlot slot) {
@@ -703,7 +679,7 @@ namespace Glamaholic.Ui {
             }
 
             ImGui.SetNextItemWidth(-1);
-            if (ImGui.InputTextWithHint("##item-filter", "Search...", ref this._itemFilter, 512, ImGuiInputTextFlags.AutoSelectAll)) {
+            if (ImGui.InputTextWithHint("##item-filter", Loc.SearchHint, ref this._itemFilter, 512, ImGuiInputTextFlags.AutoSelectAll)) {
                 this.FilterItems(slot);
             }
 
@@ -712,7 +688,7 @@ namespace Glamaholic.Ui {
             }
 
             if (GameFunctions.DresserContents.Count > 0) {
-                if (ImGui.Checkbox("Only show items in the armoire/dresser", ref this.Ui.Plugin.Config.ItemFilterShowObtainedOnly)) {
+                if (ImGui.Checkbox(Loc.ShowObtainedOnly, ref this.Ui.Plugin.Config.ItemFilterShowObtainedOnly)) {
                     this.Ui.Plugin.SaveConfig();
                     this.FilterItems(slot);
                 }
@@ -736,7 +712,7 @@ namespace Glamaholic.Ui {
                 ImGui.SameLine();
                 Util.TextIcon(FontAwesomeIcon.Box);
                 ImGui.SameLine();
-                ImGui.TextUnformatted("None (keep existing)");
+                ImGui.TextUnformatted(Loc.NoneKeepExisting);
 
                 if (ImGui.Selectable("##none-remove)", id == 0)) {
                     plate.Items[slot] = new SavedGlamourItem();
@@ -746,7 +722,7 @@ namespace Glamaholic.Ui {
                 ImGui.SameLine();
                 Util.TextIcon(FontAwesomeIcon.Box);
                 ImGui.SameLine();
-                ImGui.TextUnformatted("None (remove existing)");
+                ImGui.TextUnformatted(Loc.NoneRemoveExisting);
 
                 var clipper = ImGui.ImGuiListClipper();
 
@@ -775,7 +751,7 @@ namespace Glamaholic.Ui {
 
                         ImGui.SameLine();
 
-                        var has = GameFunctions.DresserContents.Any(saved => saved.ItemId % Util.HqItemOffset == item.RowId) || this.Ui.Plugin.Functions.IsInArmoire(item.RowId);
+                        var has = this.Ui.Plugin.Functions.IsObtained(item.RowId);
 
                         if (!has) {
                             ImGui.PushStyleColor(ImGuiCol.Text, ImGui.GetStyle().Colors[(int) ImGuiCol.TextDisabled]);
@@ -810,7 +786,7 @@ namespace Glamaholic.Ui {
 
             // check for item
             if (mirage != null && mirage.ItemId != 0 && GameFunctions.DresserContents.Count > 0) {
-                var has = GameFunctions.DresserContents.Any(saved => saved.ItemId % Util.HqItemOffset == mirage.ItemId) || this.Ui.Plugin.Functions.IsInArmoire(mirage.ItemId);
+                var has = this.Ui.Plugin.Functions.IsObtained(mirage.ItemId);
                 if (!has) {
                     borderColour = ImGuiColors.DalamudYellow;
                 }
@@ -846,7 +822,7 @@ namespace Glamaholic.Ui {
                             } else
                                 tooltip += $"\n(?)";
                         } else {
-                            tooltip += $"\n(no primary dye)";
+                            tooltip += $"\n{Loc.NoDye1}";
 
                             if (item.DyeCount != 0)
                                 ImGui.GetWindowDrawList().AddCircle(circleCentre, 5, 0xFF000000);
@@ -870,7 +846,7 @@ namespace Glamaholic.Ui {
                                 ImGui.GetWindowDrawList().AddCircle(circleCentre, 5, 0xFF000000);
                         }
 
-                        tooltip += "\n\n* Left click to copy name to clipboard";
+                        tooltip += $"\n\n{Loc.ClickToCopyName}";
                     }
                 }
             } else if (mirage != null) {
@@ -903,7 +879,7 @@ namespace Glamaholic.Ui {
                 if (Service.DataManager.GetExcelSheet<Item>()!.TryGetRow(mirage!.ItemId, out var item)) {
                     string name = item.Name.ExtractText();
                     ImGui.SetClipboardText(name);
-                    Service.ChatGui.Print($"Copied '{name}' to clipboard.");
+                    Service.ChatGui.Print(Loc.CopiedName(name));
                 }
             }
 
@@ -961,46 +937,46 @@ namespace Glamaholic.Ui {
             }
 
             ImGui.TableNextColumn();
-            if (Util.IconButton(FontAwesomeIcon.Check, tooltip: "Apply")) {
+            if (Util.IconButton(FontAwesomeIcon.Check, tooltip: Loc.Apply)) {
                 if (!Util.IsEditingPlate(Service.GameGui)) {
-                    this.AddTimedMessage("The in-game plate editor must be open.");
+                    this.AddTimedMessage(Loc.PlateEditorMustBeOpen);
                 } else {
                     Service.Framework.RunOnFrameworkThread(() => this.Ui.Plugin.Functions.LoadPlate(plate));
                 }
             }
 
             ImGui.TableNextColumn();
-            if (Util.IconButton(FontAwesomeIcon.Search, tooltip: "Try on")) {
+            if (Util.IconButton(FontAwesomeIcon.Search, tooltip: Loc.TryOn)) {
                 this.Ui.TryOnHelper.TryOnPlate(plate);
             }
 
             ImGui.TableNextColumn();
-            if (Util.IconButton(FontAwesomeIcon.Font, tooltip: "Rename")) {
+            if (Util.IconButton(FontAwesomeIcon.Font, tooltip: Loc.Rename)) {
                 this._showRename ^= true;
                 this._renameInput = plate.Name;
             }
 
             ImGui.TableNextColumn();
-            if (Util.IconButton(FontAwesomeIcon.PencilAlt, tooltip: "Edit")) {
+            if (Util.IconButton(FontAwesomeIcon.PencilAlt, tooltip: Loc.Edit)) {
                 this._editing = true;
                 this._editingPlate = plate.Clone();
                 this._editingPlateId = node.Id;
             }
 
             ImGui.TableNextColumn();
-            if (Util.IconButton(FontAwesomeIcon.ShareAltSquare, tooltip: "Share")) {
+            if (Util.IconButton(FontAwesomeIcon.ShareAltSquare, tooltip: Loc.Share)) {
                 ImGui.SetClipboardText(JsonConvert.SerializeObject(new SharedPlate(plate)));
-                this.AddTimedMessage("Copied to clipboard.");
+                this.AddTimedMessage(Loc.CopiedToClipboard);
             }
 
             ImGui.TableNextColumn();
-            if (Util.IconButton(FontAwesomeIcon.FileExport, tooltip: "Export as Text")) {
+            if (Util.IconButton(FontAwesomeIcon.FileExport, tooltip: Loc.ExportAsText)) {
                 ImGui.SetClipboardText(ConvertToText(plate));
-                this.AddTimedMessage("Copied to clipboard.");
+                this.AddTimedMessage(Loc.CopiedToClipboard);
             }
 
             ImGui.TableNextColumn();
-            if (Util.IconButton(FontAwesomeIcon.FolderOpen, tooltip: "Move to Folder")) {
+            if (Util.IconButton(FontAwesomeIcon.FolderOpen, tooltip: Loc.MoveToFolder)) {
                 ImGui.OpenPopup("move-to-folder-popup");
             }
 
@@ -1023,12 +999,12 @@ namespace Glamaholic.Ui {
                 return;
             }
 
-            if (!ImGui.CollapsingHeader($"Tags ({plate.Tags.Count})###plate-tags")) {
+            if (!ImGui.CollapsingHeader($"{Loc.Tags(plate.Tags.Count)}###plate-tags")) {
                 return;
             }
 
             ImGui.SetNextItemWidth(-1);
-            if (ImGui.InputTextWithHint("##tag-input", "Input a tag and press Enter", ref this._tagInput, 128, ImGuiInputTextFlags.EnterReturnsTrue)) {
+            if (ImGui.InputTextWithHint("##tag-input", Loc.TagInputHint, ref this._tagInput, 128, ImGuiInputTextFlags.EnterReturnsTrue)) {
                 if (!string.IsNullOrWhiteSpace(this._tagInput)) {
                     var tag = this._tagInput.Trim();
 
@@ -1117,9 +1093,9 @@ namespace Glamaholic.Ui {
             }
 
             if (this._editing) {
-                Util.TextUnformattedWrapped("Click an item to edit it. Right-click to dye.");
+                Util.TextUnformattedWrapped(Loc.EditingHint);
 
-                if (ImGui.Button("Save") && this._editingPlate != null) {
+                if (ImGui.Button(Loc.Save) && this._editingPlate != null) {
                     selectedNode.Plate = _editingPlate.Clone();
 
                     TreeUtils.Sort(this.Ui.Plugin.Config.Plates);
@@ -1129,7 +1105,7 @@ namespace Glamaholic.Ui {
 
                 ImGui.SameLine();
 
-                if (ImGui.Button("Cancel")) {
+                if (ImGui.Button(Loc.Cancel)) {
                     this.ResetEditing();
                 }
             }
@@ -1154,27 +1130,27 @@ namespace Glamaholic.Ui {
             DrawDyeListLabel(plate);
 
             ImGui.NewLine();
-            ImGui.TextUnformatted("Customize");
+            ImGui.TextUnformatted(Loc.Customize);
 
-            bool fillSlots = ImGui.Button("Fill Empty Slots with New Emperor");
+            bool fillSlots = ImGui.Button(Loc.FillEmptySlots);
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Fills empty slots with the New Emperor set.");
+                ImGui.SetTooltip(Loc.FillEmptySlotsTooltip);
 
             if (fillSlots)
                 this.FillEmptySlots(plate);
 
             ImGui.NewLine();
-            ImGui.TextUnformatted("Settings");
+            ImGui.TextUnformatted(Loc.Settings);
             SeparatorHack();
 
             bool newEmperor = plate.FillWithNewEmperor;
-            if (ImGui.Checkbox("Fill empty slots with New Emperor for Try on & Apply", ref newEmperor)) {
+            if (ImGui.Checkbox(Loc.FillOnApply, ref newEmperor)) {
                 plate.FillWithNewEmperor = newEmperor;
                 this.Ui.Plugin.SaveConfig();
             }
 
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Does not modify the glamour itself!\n\nIf enabled, empty slots will be filled with the New Emperor set when tried on or applied to plates.");
+                ImGui.SetTooltip(Loc.FillOnApplyTooltip);
         }
 
         private void DrawDyeListLabel(SavedPlate plate) {
@@ -1186,7 +1162,7 @@ namespace Glamaholic.Ui {
 
             ImGui.SameLine();
 
-            ImGui.TextUnformatted("Hover to view dyes (click to copy)");
+            ImGui.TextUnformatted(Loc.DyeListHint);
             showDyes |= ImGui.IsItemHovered();
             copyDyes |= ImGui.IsItemClicked(ImGuiMouseButton.Left);
 
@@ -1222,7 +1198,7 @@ namespace Glamaholic.Ui {
                 foreach (var (stain, track) in stainItems.OrderBy(kvp => -kvp.Value.Item1)) {
                     string itemName = track.Item2.ItemName;
                     
-                    string line = $"{track.Item1}x {itemName}";
+                    string line = Loc.DyeCount(itemName, track.Item1);
                     ImGui.TextUnformatted(line);
 
                     if (copyDyes)
@@ -1231,7 +1207,7 @@ namespace Glamaholic.Ui {
 
                 if (copyDyes || DateTime.Now.Subtract(_dyesCopiedTime).TotalSeconds < 1.5) {
                     ImGui.NewLine();
-                    ImGui.TextUnformatted("Copied to clipboard!");
+                    ImGui.TextUnformatted(Loc.CopiedToClipboard);
                 }
 
                 ImGui.EndTooltip();
@@ -1247,11 +1223,11 @@ namespace Glamaholic.Ui {
             var warnings = new List<string>();
 
             if (!this.Ui.Plugin.Functions.ArmoireLoaded) {
-                warnings.Add("The Armoire is not loaded. Open it once to enable glamours from the Armoire.");
+                warnings.Add(Loc.WarningArmoireNotLoaded);
             }
 
             if (GameFunctions.DresserContents.Count == 0) {
-                warnings.Add("Glamour Dresser is empty or has not been opened. Glamaholic will not know which items you have.");
+                warnings.Add(Loc.WarningDresserEmpty);
             }
 
             if (warnings.Count == 0) {
@@ -1259,7 +1235,7 @@ namespace Glamaholic.Ui {
             }
 
             ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudYellow);
-            var header = ImGui.CollapsingHeader($"Warnings ({warnings.Count})###warnings");
+            var header = ImGui.CollapsingHeader($"{Loc.Warnings(warnings.Count)}###warnings");
             ImGui.PopStyleColor();
 
             if (!header) {
@@ -1323,13 +1299,14 @@ namespace Glamaholic.Ui {
         }
 
         private void FilterItems(PlateSlot slot) {
-            var filter = this._itemFilter.ToLowerInvariant();
-
             IEnumerable<Item> items;
             if (GameFunctions.DresserContents.Count > 0 && this.Ui.Plugin.Config.ItemFilterShowObtainedOnly) {
                 var sheet = Service.DataManager.GetExcelSheet<Item>()!;
+                // HQ品はIDがずれており、同じ装備が染色違いで複数入っていることもあるため、基本IDでまとめる
                 items = GameFunctions.DresserContents
-                    .Select(item => sheet.GetRowOrDefault(item.ItemId))
+                    .Select(item => item.ItemId % Util.HqItemOffset)
+                    .Distinct()
+                    .Select(itemId => sheet.GetRowOrDefault(itemId))
                     .Where(item => item != null)
                     .Cast<Item>();
             } else {
@@ -1339,7 +1316,7 @@ namespace Glamaholic.Ui {
             this.FilteredItems = items
                 .Where(item => !Util.IsItemSkipped(item))
                 .Where(item => Util.MatchesSlot(item.EquipSlotCategory.Value!, slot))
-                .Where(item => this._itemFilter.Length == 0 || item.Name.ExtractText().ToLowerInvariant().Contains(filter))
+                .Where(item => this._itemFilter.Length == 0 || Util.ContainsText(item.Name.ExtractText(), this._itemFilter))
                 .ToImmutableList();
         }
 
@@ -1372,10 +1349,10 @@ namespace Glamaholic.Ui {
                 if (kvp.Value.ItemId == 0) {
                     continue;
                 } else {
-                    sb.Append(kvp.Key.ToString()).Append(": ");
+                    sb.Append(kvp.Key.Name()).Append(": ");
 
-                    if (!DataCache.EquippableItems.Value.TryGetFirst(i => i.RowId == kvp.Value.ItemId, out Item item)) {
-                        sb.AppendLine("Unknown Item");
+                    if (!Service.DataManager.GetExcelSheet<Item>()!.TryGetRow(kvp.Value.ItemId % Util.HqItemOffset, out Item item)) {
+                        sb.AppendLine(Loc.UnknownItem);
                     } else {
                         sb.Append(item.Name);
 
@@ -1388,7 +1365,7 @@ namespace Glamaholic.Ui {
                         sb.Append(" (");
                         if (kvp.Value.Stain1 != 0) {
                             if (!stainSheet.TryGetRow(kvp.Value.Stain1, out var stain)) {
-                                sb.Append("Unknown Stain");
+                                sb.Append(Loc.UnknownDye);
                             } else {
                                 sb.Append(stain.Name);
                             }
@@ -1400,7 +1377,7 @@ namespace Glamaholic.Ui {
                                 sb.Append(", ");
 
                             if (!stainSheet.TryGetRow(kvp.Value.Stain2, out var stain)) {
-                                sb.Append("Unknown Stain");
+                                sb.Append(Loc.UnknownDye);
                             } else {
                                 sb.Append(stain.Name);
                             }

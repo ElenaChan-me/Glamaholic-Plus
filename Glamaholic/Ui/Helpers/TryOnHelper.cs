@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace Glamaholic.Ui.Helpers {
     internal class TryOnHelper {
-        private const string PlateName = "Fitting Room";
+        private const string PlateName = Loc.FittingRoom;
 
         // see file footer for information about these offsets
         private const int TryOnToggleOffset = 0x366; // 870
@@ -38,7 +38,7 @@ namespace Glamaholic.Ui.Helpers {
         }
 
         private void DrawDropdown() {
-            if (ImGui.Selectable($"Open {Plugin.Name}")) {
+            if (ImGui.Selectable(Loc.Open(Plugin.Name))) {
                 this.Ui.OpenMainInterface();
             }
 

@@ -1,8 +1,7 @@
-name: Glamaholic
-author: Anna, Caitlyn
+name: Glamaholic JP
+author: Anna, Caitlyn (日本語化・軽量化 Nakagawa)
 description: |
-  Create and save as many glamour plates as you want. Activate up to 15 of them
-  at once at the Glamour Dresser. Supports exporting and importing plates for
-  easy sharing.
-punchline: Save and swap your glamour plates.
-repo_url: https://github.com/caitlyn-gg/Glamaholic
+  ミラージュプレートを好きなだけ保存し、ミラージュドレッサーで呼び出せるプラグイン
+  Glamaholic の日本語化・軽量化版です。プレートの書き出し・取り込みにも対応します。
+punchline: ミラージュプレートを好きなだけ保存・切り替え
+repo_url: https://github.com/ElenaChan-me/Glamaholic-JP

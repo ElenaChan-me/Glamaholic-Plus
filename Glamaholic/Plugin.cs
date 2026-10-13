@@ -3,7 +3,7 @@ using Dalamud.Plugin;
 namespace Glamaholic {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Plugin : IDalamudPlugin {
-        internal static string Name => "Glamaholic";
+        internal static string Name => "Glamaholic JP";
 
         internal Configuration Config { get; }
         internal GameFunctions Functions { get; }

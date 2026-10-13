@@ -19,7 +19,7 @@ namespace Glamaholic {
 
     [Serializable]
     internal class FolderNode : TreeNode {
-        public override string Name { get; set; } = "Unnamed Folder";
+        public override string Name { get; set; } = Loc.UnnamedFolder;
 
         [JsonConverter(typeof(TreeNodeListConverter))]
         public List<TreeNode> Children { get; set; } = new();
@@ -28,7 +28,7 @@ namespace Glamaholic {
     [Serializable]
     internal class PlateNode : TreeNode {
         public override string Name {
-            get => Plate?.Name ?? "Unnamed Plate";
+            get => Plate?.Name ?? Loc.UnnamedPlate;
             set { Plate.Name = value; }
         }
 
@@ -88,6 +88,7 @@ namespace Glamaholic {
     [Serializable]
     internal class Configuration : IPluginConfiguration {
         private const int CURRENT_VERSION = 3;
+        private const string OriginalConfigFileName = "Glamaholic.json";
 
         public int Version { get; set; } = CURRENT_VERSION;
 
@@ -128,6 +129,8 @@ namespace Glamaholic {
         }
 
         internal static Configuration LoadAndMigrate(FileInfo fileInfo) {
+            ImportFromOriginalPlugin(fileInfo);
+
             if (!fileInfo.Exists)
                 return new Configuration();
 
@@ -166,6 +169,25 @@ namespace Glamaholic {
             File.WriteAllText(fileInfo.FullName, cfg.ToString());
 
             return cfg.ToObject<Configuration>(JsonSerializer.Create())!;
+        }
+
+        // 本家 Glamaholic から乗り換えたときに保存済みのプレートを引き継ぐ。
+        // 本家の設定ファイルは移行処理で書き換えないよう、コピーしてから読み込む。
+        private static void ImportFromOriginalPlugin(FileInfo fileInfo) {
+            if (fileInfo.Exists || fileInfo.DirectoryName == null)
+                return;
+
+            var original = new FileInfo(Path.Join(fileInfo.DirectoryName, OriginalConfigFileName));
+            if (!original.Exists)
+                return;
+
+            try {
+                File.Copy(original.FullName, fileInfo.FullName);
+                fileInfo.Refresh();
+                Service.Log.Info($"Imported plates from {original.Name}");
+            } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
+                Service.Log.Warning(ex, $"Failed to import plates from {original.Name}");
+            }
         }
 
         internal static void CreateBackup(FileInfo fileInfo)
