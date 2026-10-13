@@ -45,11 +45,11 @@ namespace Glamaholic {
             return plateOpen && (boxOpen || armoireOpen);
         }
 
-        internal static bool DrawTextInput(string id, ref string input, int max = 512, string message = Loc.PressEnterToSave, ImGuiInputTextFlags flags = ImGuiInputTextFlags.None) {
+        internal static bool DrawTextInput(string id, ref string input, int max = 512, string? message = null, ImGuiInputTextFlags flags = ImGuiInputTextFlags.None) {
             ImGui.SetNextItemWidth(-1);
             var ret = ImGui.InputText($"##{id}", ref input, max, ImGuiInputTextFlags.EnterReturnsTrue | flags);
 
-            ImGui.TextUnformatted(message);
+            ImGui.TextUnformatted(message ?? Loc.PressEnterToSave);
 
             return ret && input.Length > 0;
         }

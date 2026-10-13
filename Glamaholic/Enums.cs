@@ -19,18 +19,18 @@ namespace Glamaholic {
     internal static class PlateSlotExt {
         internal static string Name(this PlateSlot slot) {
             return slot switch {
-                PlateSlot.MainHand => "武器",
-                PlateSlot.OffHand => "盾",
-                PlateSlot.Head => "頭",
-                PlateSlot.Body => "胴",
-                PlateSlot.Hands => "手",
-                PlateSlot.Legs => "脚",
-                PlateSlot.Feet => "足",
-                PlateSlot.Ears => "耳",
-                PlateSlot.Neck => "首",
-                PlateSlot.Wrists => "腕",
-                PlateSlot.RightRing => "右指",
-                PlateSlot.LeftRing => "左指",
+                PlateSlot.MainHand => Loc.SlotMainHand,
+                PlateSlot.OffHand => Loc.SlotOffHand,
+                PlateSlot.Head => Loc.SlotHead,
+                PlateSlot.Body => Loc.SlotBody,
+                PlateSlot.Hands => Loc.SlotHands,
+                PlateSlot.Legs => Loc.SlotLegs,
+                PlateSlot.Feet => Loc.SlotFeet,
+                PlateSlot.Ears => Loc.SlotEars,
+                PlateSlot.Neck => Loc.SlotNeck,
+                PlateSlot.Wrists => Loc.SlotWrists,
+                PlateSlot.RightRing => Loc.SlotRightRing,
+                PlateSlot.LeftRing => Loc.SlotLeftRing,
                 _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, null),
             };
         }
