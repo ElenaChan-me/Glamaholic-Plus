@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Glamaholic {
     /// <summary>
-    /// XIVToolHub がプラグインの隣に書き出す設定（表示言語・フォント）。
+    /// XIVToolHub がプラグインの隣に書き出す設定（表示言語・フォント・テーマ）。
     /// ハブを使わずに導入した場合はファイルが無いので、Dalamud の表示言語に合わせる。
     /// </summary>
     internal sealed class HubSettings {
@@ -16,6 +16,9 @@ namespace Glamaholic {
 
         [JsonProperty("fontPath")]
         public string? FontPath { get; set; }
+
+        [JsonProperty("theme")]
+        public string? Theme { get; set; }
 
         internal static HubSettings Load(string? directory) {
             if (directory == null) {
