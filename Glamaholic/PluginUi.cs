@@ -18,10 +18,12 @@ namespace Glamaholic {
         internal List<AlternativeFinder> AlternativeFinders { get; } = new();
         internal List<(string, string)> Help { get; } = new();
         private LanguageFont Font { get; }
+        private UiTheme Theme { get; }
 
-        internal PluginUi(Plugin plugin, LanguageFont font) {
+        internal PluginUi(Plugin plugin, LanguageFont font, UiTheme theme) {
             this.Plugin = plugin;
             this.Font = font;
+            this.Theme = theme;
 
             // 日本語・中国語は文中に空白が入らないよう、折り返した行はそのままつなげる
             var separator = Loc.Language is UiLanguage.Japanese or UiLanguage.ChineseSimplified ? "" : " ";
@@ -79,6 +81,7 @@ namespace Glamaholic {
 
         private void Draw() {
             using var font = this.Font.Push();
+            using var theme = this.Theme.Push();
             this.MainInterface.Draw();
             this.EditorHelper.Draw();
             this.ExamineHelper.Draw();

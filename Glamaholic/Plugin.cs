@@ -23,7 +23,7 @@ namespace Glamaholic {
             this.Config = Configuration.LoadAndMigrate(Service.Interface!.ConfigFile);
 
             this.Functions = new GameFunctions(this);
-            this.Ui = new PluginUi(this, this.Font);
+            this.Ui = new PluginUi(this, this.Font, new UiTheme(hubSettings.Theme));
             this.Commands = new Commands(this);
         }
 #pragma warning restore 8618
