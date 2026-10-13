@@ -4,7 +4,7 @@
         <TargetFramework>net10.0-windows7.0</TargetFramework>
         <AssemblyName>GlamaholicJP</AssemblyName>
         <RootNamespace>Glamaholic</RootNamespace>
-        <Version>1.15.2.1</Version>
+        <Version>1.15.2.2</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Nullable>enable</Nullable>
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -25,12 +25,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Fody" Version="6.8.0" PrivateAssets="all" />
-        <PackageReference Include="Resourcer.Fody" Version="1.8.1" PrivateAssets="all" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="help.txt" />
+        <!-- 表示言語に合わせて読み込むため、リソース名をファイル名と同じにしておく。
+             .ja などをカルチャと解釈されてサテライトアセンブリに分けられないよう WithCulture を無効にする -->
+        <EmbeddedResource Include="help.*.txt" LogicalName="%(Filename)%(Extension)" WithCulture="false" />
     </ItemGroup>
 
     <ItemGroup>

@@ -151,7 +151,7 @@ namespace Glamaholic.Ui.Helpers {
             if (folderChoice.HasValue)
                 _createPlateTargetFolder = folderChoice.Value;
 
-            const string msg = Loc.CreatePlateHint;
+            var msg = Loc.CreatePlateHint;
             ImGui.PushTextWrapPos(250);
             if (Util.DrawTextInput("current-name", ref nameInput, message: msg, flags: ImGuiInputTextFlags.AutoSelectAll)) {
                 var items = getter();
