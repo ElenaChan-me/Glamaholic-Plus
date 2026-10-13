@@ -41,7 +41,16 @@ namespace Glamaholic {
         private Plugin Plugin { get; }
         private readonly List<uint> _filterIds = new();
         private static List<PrismBoxCachedItem> _cachedDresserItems = [];
+        // 描画のたびにドレッサー全体を走査しないよう、所持判定用の ID を別に持つ
+        private static HashSet<uint> _cachedDresserItemIds = [];
         private static int _dresserItemSlotsUsed = 0;
+
+        // 愛蔵品キャビネットのシートを毎回線形検索すると重いため、アイテム ID から行を引けるようにしておく
+        private static readonly Lazy<Dictionary<uint, uint>> CabinetRowByItemId = new(() =>
+            Service.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Cabinet>()!
+                .Where(row => row.Item.RowId != 0)
+                .GroupBy(row => row.Item.RowId)
+                .ToDictionary(group => group.Key, group => group.First().RowId));
 
         private SavedPlate _retryLoadPlate = null;
         private int _retryLoadPlateCount = 0;
@@ -94,6 +103,7 @@ namespace Glamaholic {
             int usedSlots = agent->Data->UsedSlots;
 
             _cachedDresserItems.Clear();
+            _cachedDresserItemIds.Clear();
             foreach (var item in agent->Data->PrismBoxItems) {
                 if (item.ItemId == 0 || item.Slot >= 800)
                     continue;
@@ -106,6 +116,7 @@ namespace Glamaholic {
                     Stain1 = item.Stains[0],
                     Stain2 = item.Stains[1],
                 });
+                _cachedDresserItemIds.Add(item.ItemId % Util.HqItemOffset);
             }
 
             _dresserItemSlotsUsed = agent->Data->UsedSlots;
@@ -169,13 +180,16 @@ namespace Glamaholic {
         }
 
         internal unsafe bool IsInArmoire(uint itemId) {
-            var row = Service.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Cabinet>()!.FirstOrNull(row => row.Item.RowId == itemId);
-            if (row == null) {
+            if (!CabinetRowByItemId.Value.TryGetValue(itemId, out var cabinetRowId)) {
                 return false;
             }
 
-            return this.Armoire->IsItemInCabinet(row.Value.RowId);
+            return this.Armoire->IsItemInCabinet(cabinetRowId);
         }
+
+        internal static bool IsInDresser(uint itemId) => _cachedDresserItemIds.Contains(itemId);
+
+        internal bool IsObtained(uint itemId) => IsInDresser(itemId) || this.IsInArmoire(itemId);
 
         internal unsafe void LoadPlate(SavedPlate plate) {
             Plugin.LogTroubleshooting("Begin LoadPlate()");
@@ -344,7 +358,7 @@ namespace Glamaholic {
         }
         
         internal SavedGlamourItem? GetCurrentPlateItem(PlateSlot slot) =>
-            CurrentPlate == null ? null : CurrentPlate!.GetValueOrDefault(slot, null);
+            CurrentPlate?.GetValueOrDefault(slot);
             
         internal PrismBoxCachedItem? FindBestPrismBoxMatch(SavedGlamourItem item) {
             var dresser = DresserContents;
