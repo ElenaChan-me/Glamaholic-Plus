@@ -1,10 +1,12 @@
-# Glamaholic JP
+# Glamaholic Plus
 
-[Glamaholic](https://github.com/caitlyn-gg/Glamaholic) を日本語化・軽量化した Dalamud プラグインです。
-ミラージュプレートを好きなだけ保存し、ミラージュドレッサーで呼び出せます。
+[Glamaholic](https://github.com/caitlyn-gg/Glamaholic) の拡張版の Dalamud プラグインです。ミラージュプレートを好きなだけ保存し、ミラージュドレッサーで呼び出せます。日本語化から始まり、多言語表示・XIVToolHub のテーマ連携・軽量化を加えています。
 
-A Japanese-localized and slimmed-down fork of the Dalamud plugin [Glamaholic](https://github.com/caitlyn-gg/Glamaholic).
-It lets you save as many glamour plates as you like and apply them at the Glamour Dresser.
+An extended edition of the Dalamud plugin [Glamaholic](https://github.com/caitlyn-gg/Glamaholic).
+It lets you save as many glamour plates as you like and apply them at the Glamour Dresser. It started as a Japanese localization and now adds multiple languages, XIVToolHub theme support and a lighter footprint.
+
+> 旧名は Glamaholic JP です（2026-10 に改名）。保存データを引き継ぐため、内部名 `GlamaholicJP` とコマンド `/glamjp` は変えていません。
+> Formerly Glamaholic JP (renamed in October 2026). The internal name `GlamaholicJP` and the `/glamjp` command are unchanged so existing saved plates keep working.
 
 ## 注意 / Warning
 
@@ -19,7 +21,7 @@ and their use may result in account suspension. Use at your own risk.
 
 変更日 / Date of modification: 2026-10-13（ベース / based on: Glamaholic 1.15.2, commit `7ba1ae3`）
 
-### 日本語化 / Localization
+### 多言語化 / Localization
 
 - 画面の文言をすべて日本語化（`Glamaholic/Loc.cs` に集約）
   All UI text translated into Japanese and collected in `Glamaholic/Loc.cs`
@@ -55,6 +57,11 @@ and their use may result in account suspension. Use at your own risk.
   On first launch, plates saved by the original plugin are copied over (the original file is left untouched)
 - ドレッサー内の装備だけを表示する設定で、HQ 品が表示されない問題を修正
   Fixed HQ items missing from the "obtained only" item list
+
+## インストール / Install
+
+[XIVToolHub](https://github.com/ElenaChan-me/XIVToolHub) で Glamaholic Plus を選ぶと、Dalamud の開発用プラグインとして登録されます。
+Select Glamaholic Plus in XIVToolHub; it is registered as a Dalamud dev plugin.
 
 ## 使い方 / Usage
 

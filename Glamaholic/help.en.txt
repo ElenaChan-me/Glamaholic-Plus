@@ -1,6 +1,6 @@
-# How to use Glamaholic JP
+# How to use Glamaholic Plus
 
-Thank you for installing Glamaholic JP! This plugin can act as your home for
+Thank you for installing Glamaholic Plus! This plugin can act as your home for
 glamours, since you can store as many as you would like in it. To get started,
 try reading the section called "Adding glamour plates". Keep in mind that you'll
 need to be editing your plates at the Glamour Dresser to be able to copy those
@@ -16,10 +16,10 @@ empty glamour plate to edit from scratch.
 - From the main window, click "Plates", hover over "Import from Clipboard"
 to import a shared plate.
 
-- Click on the Glamaholic JP menu at the top left of the Glamour Plate Creation
+- Click on the Glamaholic Plus menu at the top left of the Glamour Plate Creation
 window, then hover over "Create glamour plate" to import plates from the game.
 
-- Open the Examine window of a character, click the "Glamaholic JP" menu, then
+- Open the Examine window of a character, click the "Glamaholic Plus" menu, then
 click "Create glamour plate" to create a glamour plate from someone else's outfit.
 
 ---
