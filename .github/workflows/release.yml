@@ -37,4 +37,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${{ github.ref_name }}" "Glamaholic/bin/x64/Release/GlamaholicJP/latest.zip" `
-            --title "Glamaholic JP ${{ github.ref_name }}" --notes "Glamaholic JP ${{ github.ref_name }}"
+            --title "Glamaholic Plus ${{ github.ref_name }}" --notes "Glamaholic Plus ${{ github.ref_name }}"
