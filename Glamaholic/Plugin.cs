@@ -3,7 +3,8 @@ using Dalamud.Plugin;
 namespace Glamaholic {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Plugin : IDalamudPlugin {
-        internal static string Name => "Glamaholic JP";
+        // 表示名だけを変える。内部名（GlamaholicJP）を変えると保存済みのプレートが読み込めなくなる
+        internal static string Name => "Glamaholic Plus";
 
         internal Configuration Config { get; }
         internal GameFunctions Functions { get; }
