@@ -192,7 +192,8 @@ namespace Glamaholic {
 
         internal static void CreateBackup(FileInfo fileInfo)
         {
-            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            // 仏暦や和暦の地域設定でも、ファイル名の年がずれないようにする
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss", System.Globalization.CultureInfo.InvariantCulture);
             var backupFileName = $"{fileInfo.Name}.{timestamp}.bak";
             var backupPath = Path.Join(fileInfo.DirectoryName, backupFileName);
             File.Copy(fileInfo.FullName, backupPath, true);
