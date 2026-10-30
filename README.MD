@@ -60,8 +60,9 @@ and their use may result in account suspension. Use at your own risk.
 
 ## インストール / Install
 
-[XIVToolHub](https://github.com/ElenaChan-me/XIVToolHub) で Glamaholic Plus を選ぶと、Dalamud の開発用プラグインとして登録されます。
-Select Glamaholic Plus in XIVToolHub; it is registered as a Dalamud dev plugin.
+[XIVToolHub](https://github.com/ElenaChan-me/XIVToolHub) を使ってください（[XIVToolHub-Setup.exe](https://github.com/ElenaChan-me/XIVToolHub/releases/latest) で入れられます）。XIVToolHub で Glamaholic Plus を選ぶと、Dalamud の開発用プラグインとして登録されます。XIVLauncher が入っていなければ、一緒に入れるか確認します。XIVLauncher で一度ゲームを起動してからインストールしてください。
+
+Install with [XIVToolHub](https://github.com/ElenaChan-me/XIVToolHub) ([XIVToolHub-Setup.exe](https://github.com/ElenaChan-me/XIVToolHub/releases/latest)); it is registered as a Dalamud dev plugin, and XIVLauncher is offered if missing. Launch the game once with XIVLauncher before installing.
 
 ## 使い方 / Usage
 
